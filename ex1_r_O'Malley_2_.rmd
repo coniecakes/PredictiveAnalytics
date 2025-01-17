@@ -110,7 +110,7 @@ sd.inc <- sd(income.vect)
 var.inc <- var(income.vect)
 income.stats <- c(mean.inc, min.inc, max.inc, sd.inc, var.inc)
 names(income.stats) <- c("Mean", "Min", "Max", "StDev", "Var")
-print(income.stats) # confirm correct operation
+print(income.stats) # confirm correct name application
 ```
 
 3.2 Display a boxplot for the predictor Income. Tip: you can do this 2 ways. First you can `attach()` the Credit data set (which loads the data set in the work environment) and then do a `boxplot()` for **Income**. Or, do it without attaching, but using the table prefix (i.e., **Credit$Income). Use the **xlab** attribute to name include the label "Income". Then display similar boxplots but this time broken down by **Gender** (i.e., `Credit$Income ~ Credit$Gender`).
@@ -155,19 +155,23 @@ The data does not appear to be normally distributed because, while there is a la
 
 4.1 First, enter the command `options(scipen=4)` to minimize the display values with scientific notation. Then, create a simple linear regression model object with the `lm()` function to fit credit **Rating** as a function of **Income** and save the results in an object named **lm.rating**. Then display the model summary results with the `summary()` function. Tip: use the formula `Rating ~ Income, data=Credit` inside the `lm()` function.
 
-```{r}
-
+```{r question 4.1}
+lm(Rating ~ Income, data = credit) -> lm.rating
+summary(lm.rating)
 ```
 
 4.2 Now, plot Credit Rating (Y axis) against Income (X axis), with respective labels "Income" and "Credit Rating". Tip: feed the same formula you used in the `lm()` function above, but using the `plot()` function instead. Then draw a regression line by feeding **lm.rating** into the `abline()` function. 
 
-```{r}
-
+```{r question 4.2}
+plot(Rating ~ Income, data = credit, xlab = "Income", ylab = "Credit Rating")
+abline(lm.rating, col = "red")
 ```
 
 4.3 Write a simple linear model to predict credit ratings using these predictors: **Income**, **Limit**, **Cards**, **Married** and **Balance**. Name the resulting model **lm.rating.5**. Then display the regression using the `summary()` function. No need to answer, but what do you think are the most influential predictors of credit rating?
 
-```{r}
-
+```{r question 4.3}
+lm.rating.5 <- lm(Rating ~ Income + Limit + Cards + Married + Balance, data = credit)
+summary(lm.rating.5)
 ```
 
+The most influential predictors based on statistical significance are Limit and Cards because they have the lowest p values, with the Limit being the best because it also has the lowest standard error. All variables are statistically significant at p = 0.05 level.
