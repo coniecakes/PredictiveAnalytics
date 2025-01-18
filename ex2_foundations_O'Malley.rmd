@@ -32,7 +32,13 @@ Then, load the library **{psych}** which contains the `describe()` function and 
 Then display the median salary grouped by gender using the `aggregate()` function (feed grouping variables, dataset and aggregate function, i.e., `salary ~ sex, Salaries, mean`)
 
 ```{r GenderGap}
-
+# libraries
+library(car)
+library(psych)
+head(Salaries) # data preview
+summary(Salaries) # summary statistics
+describe(Salaries) # descriptive statistics
+aggregate(salary ~ sex, Salaries, mean) # aggregate median salary
 ```
 
 **1.2 Correlation, Boxplots and ANOVA**
@@ -44,15 +50,21 @@ Tips: `ggpairs()` requires a **data frame**. So you need to use the `data.frame(
 Finally, conduct an ANOVA test to evaluate if there is a significant difference between mean salaries for male and female faculty. Feed `Salaries$salary ~ Salaries$sex` into the `aov()` function. Embed the `aov()` function inside the `summary()` function to see the statistical test results. 
 
 ```{r Descriptives}
+library(GGally) # library
+ggpairs(data.frame("Salary" = Salaries$salary, # pairwise comparisons
+                   "Sex" = Salaries$sex, 
+                   "Yrs Since PhD" = Salaries$yrs.since.phd), 
+                    upper = list(combo = 'box'))
 
+summary(aov(salary ~ sex, Salaries)) # summary statistics analysis
 ```
 
 **1.3 Preliminary Interpretation**
 
 Based on the output above, does it appear to be a gender pay gap? Why or why not. In your answer, please refer to as much of the data above to support your answer.
 
-```{r}
-# The mean salary for males is slightly higher than for females. The boxplot of salary don't appear to support a gender pay gap because the boxes are largely overlapping. However, the ANOVA test is significant supporting the gender pay gap argument. At the same time we can also observe a high correlation between Yrs.Since.Phd and Salary, which is supported by the corresponding scatterplot. Since male faculty have more years since obtaining their PhD degrees than females, this may explain why males make somewhat larger salarires.
+```{r Interpretation}
+# Yes there is a gender pay gap. The mean salary for males is higher than females, the variable 'sex' has statistical significance to the model - suggesting the person's sex has an affect on their pay, and the bar chart showing salaries for males and females shows a higher number of males towards the top end of the distribution. The salary boxplots are inconclusive due to their overlap and mean lines being very close together. The years since PhD is much higher for males than for females, which may explain the salary disparities. 
 ```
 
 ## 2. Basic Predictive Modeling
@@ -62,26 +74,36 @@ Based on the output above, does it appear to be a gender pay gap? Why or why not
 Suppose that you hypothesize that there is a salary gender pay gap. Fit a linear model function `lm()` to test this hypothesis by predicting salary using only **sex** as a predictor. Store the results in an object called `lm.fit.1`, then inspect the results using the `summary()` function. Do these results support the salary gender gap hypothesis? Briefly explain why.
 
 ```{r lmfit1}
-
+lm.fit.1 <- lm(salary ~ sex, Salaries) # OLS model
+summary(lm.fit.1) # summary statistics
 ```
+
+These results support the gender gap hypothesis. The dummy variable 'sexMale' is of statistical significance because p (0.00567) < 0.05, meaning that sex does have an affect on the model predicting salary. The coefficient of 'sexMale' is positive, meaning that a male would receive a higher salary, because a female would be attached a '0' value to the 'sexMale' variable, resulting in the intercept coefficient as their salary, whereas the male would be attached '1' value to the 'sexMale' variable, resulting in a higher salary.
+
 
 **2.2 Multivariate OLS Regression**
 
 Now fit a linear model with **sex** and **yrs.since.phd** as predictors and save it in an object named `lm.fit.2`. Then inspect the results  using the `summary()` function. Do these results support the salary gender gap hypothesis? Briefly explain why.
 
 ```{r lmfit2}
-
+lm.fit.2 <- lm(salary ~ sex + yrs.since.phd, Salaries) # multivariate model
+summary(lm.fit.2) # summary statistics
 ```
+
+These results alone do not suggest a gender pay gap, because the 'sexMale' variable is not of statistical significance to this model (p (.0915) > 0.05) and 'yrs.since.phd' is statistically significant, meaning that yrs.since.phd has a greater affect on salary. 
 
 **2.3 Comparing Models with ANOVA F-Test**
 
-Run an ANOVA test using the `anova()` funtion to compare **lm.fit.1** tp **lm.fit.2**.
+Run an ANOVA test using the `anova()` function to compare **lm.fit.1** to **lm.fit.2**.
 
 ```{r anova}
-
+# ANOVA
+anova(lm.fit.1) 
+anova(lm.fit.2)
 ```
 
 **2.4 Interpretation**
 
-Provide your brief conclusions (in no **more than 3 lines**) about whether you think there is a gender pay gap based on this analysis (you will expand this analysis much further in HW2). First, which `lm()` model is better and why? Then, compare the best predictive model of the two against the descriptive analytics resulst you obtained in section 1 above. If the null hypothesis is that there is no gender pay gap, is this hypothesis supported? Why or why not?
+Provide your brief conclusions (in no **more than 3 lines**) about whether you think there is a gender pay gap based on this analysis (you will expand this analysis much further in HW2). First, which `lm()` model is better and why? Then, compare the best predictive model of the two against the descriptive analytics results you obtained in section 1 above. If the null hypothesis is that there is no gender pay gap, is this hypothesis supported? Why or why not?
 
+lm.fit.2 is a better model because both variables are statistically significant to the model and the residuals SSE is less than that of lm.fit.1. The models support the descriptive analytics because we see both sex and years since phd are significant visually and statistically.The hypothesis is not supported because both the models and analytics show that males make more money than females on average. 
