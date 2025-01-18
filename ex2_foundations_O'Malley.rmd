@@ -1,0 +1,87 @@
+---
+title: "ITEC 621 Exercise 2 - Foundations"
+subtitle: "Descriptive and Predictive Analytics"
+author: "Conie O'Malley"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+   toc: true
+   toc_depth: 2
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=T, warning=F, message=F)
+```
+
+## General Instructions
+
+In this exercise you will do quick descriptive and predictive analytics to evaluate if the Salaries data set (with professor salaries) supports the **gender pay gap hypothesis**. 
+
+First, download the R Markdown template for this exercise **Ex1_Foundations_YourLastName.Rmd** and save it with your own last name **exactly**. Then  open it in R Studio and complete all the exercises and answer the questions below in the template. Run the code to ensure everything is working fine. When done, upload onto blackboard, knit your R Markdown file into a Word document and upload it into Blackboard. If for some reason you can't knit a Word file, knit an HTML file and save it as a PDF. Blackboard will not accept HTML files, but will take your PDF.
+
+## 1. Descriptive Analytics
+
+**1.1 Examine the data**
+
+Is there a gender pay gap? Let's take a look
+
+Load the library **{car}**, which contains the **Salaries** data set. Then, list the first few records with `head(Salaries)`. The display the `summmary()` for this dataset, which will show frequencies. 
+
+Then, load the library **{psych}** which contains the `describe()` function and use this function to list the descriptive statistics for the dataset. 
+
+Then display the median salary grouped by gender using the `aggregate()` function (feed grouping variables, dataset and aggregate function, i.e., `salary ~ sex, Salaries, mean`)
+
+```{r GenderGap}
+
+```
+
+**1.2 Correlation, Boxplots and ANOVA**
+
+Load the library **GGally** and run the **ggpairs()** function on the **salary** (notice that the dataset **Salary** is capitalized, whereas the variable **salary** is not), **sex** and **yrs.since.phd** variables (only) in the **Salaries** data set to display some basic descriptives and correlation visually. Please label your variables appropriately (see graph below).
+
+Tips: `ggpairs()` requires a **data frame**. So you need to use the `data.frame()` function to bind the necessary column vectors into a data frame (e.g., `ggpairs(data.frame("Salary"=Salaries$salary, etc.)`. Notice the difference in the quality of the graphics and how categorical variables are labeled. Also, add the attribute `upper=list(combo='box')` at the end to get labels for the boxplot.
+
+Finally, conduct an ANOVA test to evaluate if there is a significant difference between mean salaries for male and female faculty. Feed `Salaries$salary ~ Salaries$sex` into the `aov()` function. Embed the `aov()` function inside the `summary()` function to see the statistical test results. 
+
+```{r Descriptives}
+
+```
+
+**1.3 Preliminary Interpretation**
+
+Based on the output above, does it appear to be a gender pay gap? Why or why not. In your answer, please refer to as much of the data above to support your answer.
+
+```{r}
+# The mean salary for males is slightly higher than for females. The boxplot of salary don't appear to support a gender pay gap because the boxes are largely overlapping. However, the ANOVA test is significant supporting the gender pay gap argument. At the same time we can also observe a high correlation between Yrs.Since.Phd and Salary, which is supported by the corresponding scatterplot. Since male faculty have more years since obtaining their PhD degrees than females, this may explain why males make somewhat larger salarires.
+```
+
+## 2. Basic Predictive Modeling
+
+**2.1 Salary Gender Gap: Simple OLS Regression**
+
+Suppose that you hypothesize that there is a salary gender pay gap. Fit a linear model function `lm()` to test this hypothesis by predicting salary using only **sex** as a predictor. Store the results in an object called `lm.fit.1`, then inspect the results using the `summary()` function. Do these results support the salary gender gap hypothesis? Briefly explain why.
+
+```{r lmfit1}
+
+```
+
+**2.2 Multivariate OLS Regression**
+
+Now fit a linear model with **sex** and **yrs.since.phd** as predictors and save it in an object named `lm.fit.2`. Then inspect the results  using the `summary()` function. Do these results support the salary gender gap hypothesis? Briefly explain why.
+
+```{r lmfit2}
+
+```
+
+**2.3 Comparing Models with ANOVA F-Test**
+
+Run an ANOVA test using the `anova()` funtion to compare **lm.fit.1** tp **lm.fit.2**.
+
+```{r anova}
+
+```
+
+**2.4 Interpretation**
+
+Provide your brief conclusions (in no **more than 3 lines**) about whether you think there is a gender pay gap based on this analysis (you will expand this analysis much further in HW2). First, which `lm()` model is better and why? Then, compare the best predictive model of the two against the descriptive analytics resulst you obtained in section 1 above. If the null hypothesis is that there is no gender pay gap, is this hypothesis supported? Why or why not?
+
