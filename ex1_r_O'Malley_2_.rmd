@@ -1,6 +1,6 @@
 ---
 title: "ITEC 621 Exercise 1 - R Refresher"
-author: "Conie O'Malley"
+author: "O'Malley, Conie"
 date: "`r Sys.Date()`"
 output:
   word_document:
