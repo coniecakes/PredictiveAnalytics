@@ -1,0 +1,167 @@
+---
+title: "Exercise 3 - Basic Models"
+subtitle: "WLS, GLM and Logistic"
+author: "O'Malley"
+date: "`r Sys.Date()"
+output:
+  word_document:
+   toc: true
+   toc_depth: 2
+---
+
+```{r global_options}
+knitr::opts_chunk$set(echo=T, warning=F, message=F)
+library(lmtest)
+library(tidyverse)
+```
+
+## Submission
+
+Download the **Ex3_BasicModels_YourLastName.Rmd** R Markdown file and save it with your own last name. Complete all your work in that template file, **Knit** the corresponding Word or PDF file. Your knitted document **must display your R commands**. Submit your knitted homework document. No need to submit the .Rmd file, just your knitted file.
+
+Also, please prepare your R Markdown file with a **professional appearance**, as you would for top management or an important client. 
+
+Please, write all your interpretation narratives outside of the R code chunks, with the appropriate formatting and businesslike appearance</span>. I write all my comments inside of the R code chunk to suppress their display until I print the solution, but you should not do this. I will read your submission as a report to a client or senior management. Anything unacceptable to that audience is unacceptable to me.
+
+## Setup
+
+This analysis will be done with the **Hitters{ISLR}** basseball player dataset, using AtBat, Hits, Walks, PutOuts, Assists and HmRun as predictors and player **Salary** as the outcome variable. Let's start with an OLS model and we will then test for heteroskedasticity.
+
+```{r}
+# Done for you
+
+library(ISLR) # Contains the Hitters dataset
+
+# Enter the commands below in the R Console window, but NOT in the R Markdown file. Inspect the data and the description of each predictor, to familiarize yourself with the data
+
+# ?Salaries
+# View(Salaries)
+
+# This dataset has several records with omitted data, let's remove them
+Hitters=na.omit(Hitters) 
+
+# Fit an OLS model to start with
+fit.ols <- lm(Salary ~ AtBat+Hits+Walks+PutOuts+Assists+HmRun, data=Hitters)
+summary(fit.ols)
+
+# As the output shows, there are 4 significant predictors: AtBat, Hits, Walks and PutOuts, and 2 non-significant predictors: Assists and HmRun.
+```
+
+## 1. Heteroskedasticity Testing
+
+1.1 Conduct a **Breusch-Pagan** test for Heteroskedasticity for the **fit.ols** model above.
+
+```{r question 1.1}
+bptest(fit.ols) # Breusch-Pagan test
+```
+
+#### Analysis 
+After conducting the Breusch-Pagan test, we can conclude that there is heteroscedasticity in our model. Since p (0.01699) < 0.05, we reject the null hypothesis that homoscedasticity exists in our model.<br>
+
+1.2 Display the first residual plot for **fit.ols** by using `which=1`.
+   
+```{r question 1.2}
+plot(fit.ols, which = 1)
+
+residuals_df <- data.frame(fitted = fitted(fit.ols), residuals = resid(fit.ols)) # create data frame 
+ggplot(residuals_df, aes(fitted, residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "red") +
+  geom_smooth(method = "loess", color = "blue", se = FALSE) +
+  labs(x = "Fitted Values", y = "Residuals", title = "Residual vs. Fitted Plot") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+1.3 Is there a problem with Heteroskedasticity? Why or why not? In your answer, please refer to **both**, the BP test and the residual plot.  
+
+#### Analysis
+Yes, there appears to be heteroscedasticity in the model. The Breusch-Pagan test causes us to reject the $H0$ that homoscedasticity exists in the model because p (0.01699) < 0.05 and the residual plot shows a cone-patterned dispersion of residuals, which supports the existence of heteroscedasticity in the model. 
+
+
+## 2. Weighted Least Squares (WLS) Model
+
+2.1 Set up the parameters of the WLS model. Use the `abs()` and `residuals()` functions compute the absolute value of the residuals from the OLS model **fit.ols** and store the results in a vector object named **abs.res** . Then use the `fitted()` function to extract the fitted (i.e., predicted) values from **fit.ols** and store the resuts in a vector object named **fitted.ols**. The run an `lm()` model using the predicted values in **fitted.ols** as a predictor of the absolute value of the residuals in **abs.res**. 
+
+**Technical tip:** Because you are using one data vector to predict another data vector, you don't need the `data=` parameter.
+
+As a sanity check, display the first 10 rows of the `fitted()` values of **lm.abs.res**
+
+```{r question 2.1}
+abs.res <- abs(residuals(fit.ols)) # extract absolute residuals
+fitted.ols <- fitted(fit.ols) # extract fitted values
+
+lm.abs.res <- lm(abs.res ~ fitted.ols) # second OLS Model
+
+fitted(lm.abs.res)[1:10] # sanity check
+```
+
+2.2 To visualize the lm.abs.res regression line, plot the **fitted.ols** vector against the **abs.res** vector. Then draw a red line using the `abline()` function for the **lm.abs.res** regression object.
+
+```{r wls.plot, fig.width=6, fig.height=6}
+plot(fitted.ols, abs.res, xlab = "Fitted Values", ylab =  "Absolute Residuals", main = "Fitted vs. Absolute Residuals Plot")
+abline(lm.abs.res, col = "red")
+```
+
+2.3 Specify and Run the WLS Model. First, a vector named **wts** equal to the inverse squared predicted values of **lm.abs.res** (use `wts <- 1/fitted(lm.abs.res)^2`). 
+
+Then fit the WLS regression model using the same predictors you used in ols.fit, but using **wts** as the `weights`. Name this regression object **wls.fit**. Display the summary results.
+
+While we are at it, also fit a similar weighted GLM model (**WGLM**), by using the `glm()` function and storing the results in an object named **fit.wglm**. Then display the `summary()` results for the WGLM. 
+
+```{r question 2.3}
+wts <- 1/fitted(lm.abs.res)^2 # calculate weights
+
+wls.fit <- lm(Salary ~ AtBat+Hits+Walks+PutOuts+Assists+HmRun, data=Hitters, weights = wts) # WLS Model
+summary(wls.fit) # summary statistics
+
+fit.wglm <- glm(Salary ~ AtBat+Hits+Walks+PutOuts+Assists+HmRun, data=Hitters, weights = wts) # WGLM Model
+summary(fit.wglm) # summary statistics
+```
+
+2.3 Observe the similarities an differences between the OLS, WLS and WGLM model and provide a brief commentary of your observations.
+
+#### Analysis
+The r-squared value has decreased from the original OLS model to the WLS, although the WLS model now accounts for heteroscedasticity. Two statistically insignificant variables - Assists and HmRun - have now become significant to both the WLS and WGLM models. Finally, in the WGLM model, Residual Deviance < Null Deviance, which means the model is more accurate than random guessing - a good sign for the WGLM model.
+
+
+## 3. Logistic Regression
+
+3.1 Download the **myopia.csv** file to your working directiory. Then read it using `read.table()` with the parameters `header=T, row.names=1, sep=","`. Store the dataset in an object named **myopia**. 
+
+Dataset documentation at: https://rdrr.io/cran/aplore3/man/myopia.html
+Please note that **myopic** is coded as 1 (Yes), 0 (No) (not 1 and 2)
+
+For sanity check, list the first 10 rows and 8 columns of this dataset.
+
+```{r}
+
+```
+
+3.2 Fit a logistic model to predict whether a kid is **myopic**, using `age + female + sports.hrs + read.hrs + mommy + dadmy` as predictors. **Tip:** use `family="binomial"(link="logit")`. Store the results in an object named **myopia.logit**. Display the `summary()` results. Then display the `summary()` results.
+
+```{r}
+
+```
+
+3.3 For interpretation purposes, display the log-odds alongside the odds. Use the `coef()` function to extract the log-odds coefficients from **myopia.logit** and save them in a vector object named **log.odds**. Then use the `exp()` function to conver the log-odds into odds and store the results in a vector object named **odds**. The enter the `options(scipen=4)` command to minimize the use of scientific notation. Finally, list the log-odds and odds side by side. To do this,  use the `cbind()` function to bind the two vectors into one table and name the columns **"Log-Odds"** and **"Odds"** respectively. Embed the `cbind()` function inside the `print()` function with the parameter `digits=2` to get a more compact display.
+
+```{r}
+
+```
+ 
+3.4 Provide a brief interpretation of both, the log-odds and odds effects of read.hrs and mommy. Please refer to the respective variable measurment units in your discussion.
+
+
+## 4. Decision Trees
+
+4.1 Regression Tree. Load the **{tree}** library. Then fit the regression model **ols.fit** above, but this time as a **regression tree** using the `tree()` function and save the results in an object named **fit.tree.salary**. Then plot the tree using the `plot()` and `text()` functions (use the `pretty=0` parameter). Also use the `title()` function to title you tree diagram **"Baseball Salaries Regression Tree"**.
+
+```{r fig.width=10, fig.height=5}
+
+```
+
+4.2 Classification Tree. Fit the Logistic model **myopia.logit**, but this time as a **classification tree** using the `tree()` function and save the results in an object named **fit.tree.myopia**. Then plot the tree using the `plot()` and `text()` functions (use the `pretty=0` parameter). Also use the `title()` function to title you tree diagram **"Myopia Classification Tree"**.
+
+```{r fig.width=10, fig.height=5}
+
+```
