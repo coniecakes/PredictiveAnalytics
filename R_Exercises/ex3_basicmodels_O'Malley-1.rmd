@@ -13,6 +13,7 @@ output:
 knitr::opts_chunk$set(echo=T, warning=F, message=F)
 library(lmtest)
 library(tidyverse)
+library(tree)
 ```
 
 ## Submission
@@ -126,42 +127,58 @@ The r-squared value has decreased from the original OLS model to the WLS, althou
 
 ## 3. Logistic Regression
 
-3.1 Download the **myopia.csv** file to your working directiory. Then read it using `read.table()` with the parameters `header=T, row.names=1, sep=","`. Store the dataset in an object named **myopia**. 
+3.1 Download the **myopia.csv** file to your working directory. Then read it using `read.table()` with the parameters `header=T, row.names=1, sep=","`. Store the dataset in an object named **myopia**. 
 
 Dataset documentation at: https://rdrr.io/cran/aplore3/man/myopia.html
 Please note that **myopic** is coded as 1 (Yes), 0 (No) (not 1 and 2)
 
 For sanity check, list the first 10 rows and 8 columns of this dataset.
 
-```{r}
+```{r question 3.1}
+read.table("myopia.csv", header = TRUE, row.names = 1, sep = ",") -> myopia # assign table to vector
 
+myopia[1:10, 1:8] # sanity check
 ```
 
 3.2 Fit a logistic model to predict whether a kid is **myopic**, using `age + female + sports.hrs + read.hrs + mommy + dadmy` as predictors. **Tip:** use `family="binomial"(link="logit")`. Store the results in an object named **myopia.logit**. Display the `summary()` results. Then display the `summary()` results.
 
-```{r}
-
+```{r question 3.2}
+myopia.logit <- glm(myopic ~ age + female + sports.hrs + read.hrs + mommy + dadmy, data = myopia, family = binomial(link = "logit")) # logreg model
+summary(myopia.logit) # summary statistics
 ```
 
-3.3 For interpretation purposes, display the log-odds alongside the odds. Use the `coef()` function to extract the log-odds coefficients from **myopia.logit** and save them in a vector object named **log.odds**. Then use the `exp()` function to conver the log-odds into odds and store the results in a vector object named **odds**. The enter the `options(scipen=4)` command to minimize the use of scientific notation. Finally, list the log-odds and odds side by side. To do this,  use the `cbind()` function to bind the two vectors into one table and name the columns **"Log-Odds"** and **"Odds"** respectively. Embed the `cbind()` function inside the `print()` function with the parameter `digits=2` to get a more compact display.
+3.3 For interpretation purposes, display the log-odds alongside the odds. Use the `coef()` function to extract the log-odds coefficients from **myopia.logit** and save them in a vector object named **log.odds**. Then use the `exp()` function to convert the log-odds into odds and store the results in a vector object named **odds**. The enter the `options(scipen=4)` command to minimize the use of scientific notation. Finally, list the log-odds and odds side by side. To do this,  use the `cbind()` function to bind the two vectors into one table and name the columns **"Log-Odds"** and **"Odds"** respectively. Embed the `cbind()` function inside the `print()` function with the parameter `digits=2` to get a more compact display.
 
-```{r}
-
+```{r question 3.3}
+log.odds <- coef(myopia.logit) # logodds coefficients
+odds <- exp(log.odds) # calculate odds
+print(cbind("Log-Odds" = log.odds, "Odds" = odds), digits = 2)
 ```
  
-3.4 Provide a brief interpretation of both, the log-odds and odds effects of read.hrs and mommy. Please refer to the respective variable measurment units in your discussion.
+3.4 Provide a brief interpretation of both, the log-odds and odds effects of read.hrs and mommy. Please refer to the respective variable measurement units in your discussion.
 
+#### Analysis
+On average, holding everything else constant, there is a positive relationship between read.hrs and myopia (Log-Odds = 0.799) and a one unit increase in read.hrs multiplies the odds of myopia by 2.22 (increase of 122.2%). <br><br> On average, holding everything else constant, there is a stronger positive relationship between mommy and myopia (Log-Odds = 2.937) and since mommy is a binary variable, if the value is 1, then the odds of myopia are multiplied by 18.86 (increase of 1787.5%).
 
 ## 4. Decision Trees
 
 4.1 Regression Tree. Load the **{tree}** library. Then fit the regression model **ols.fit** above, but this time as a **regression tree** using the `tree()` function and save the results in an object named **fit.tree.salary**. Then plot the tree using the `plot()` and `text()` functions (use the `pretty=0` parameter). Also use the `title()` function to title you tree diagram **"Baseball Salaries Regression Tree"**.
 
 ```{r fig.width=10, fig.height=5}
-
+tree(fit.ols) -> fit.tree.salary # regression tree model
+# plot creation
+plot(fit.tree.salary) 
+text(fit.tree.salary, pretty = 0)
+title("Baseball Salaries Regression Tree")
 ```
 
 4.2 Classification Tree. Fit the Logistic model **myopia.logit**, but this time as a **classification tree** using the `tree()` function and save the results in an object named **fit.tree.myopia**. Then plot the tree using the `plot()` and `text()` functions (use the `pretty=0` parameter). Also use the `title()` function to title you tree diagram **"Myopia Classification Tree"**.
 
 ```{r fig.width=10, fig.height=5}
+fit.tree.myopia <- tree(myopia.logit) # classification tree model
 
+# plot creation
+plot(fit.tree.myopia)
+text(fit.tree.myopia, pretty = 0)
+title("Myopia Classification Tree")
 ```
