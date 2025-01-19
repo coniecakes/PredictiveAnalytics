@@ -11,6 +11,7 @@ output:
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo=T, warning=F, message=F)
+library(tidyverse)
 ```
 
 ## Q1 - Functions and Loops (12.5 pts.)
@@ -46,27 +47,40 @@ Read the Credit.csv data table into a data frame named "Credit" (tip: use the `r
 Display (only) the **first 10 rows** of (only) the Rating, Income and Balance columns. Use the `cbind()` function to bind the 3 columns and ensure that your columns have labels (e.g. "Rating"=Credit$Rating[1:10], etc.). 
 
 ```{r ReadCSV}
+read.table("Credit.csv", header = TRUE, sep = ",") -> Credit # read data into table
 
+cbind("Rating" = Credit$Rating[1:10], # display required columns
+      "Income" = Credit$Income[1:10],
+      "Balance" = Credit$Balance[1:10])
 ```
 
 Then, display the object class for the Credit data frame and for the vectors Gender (i.e., `Credit$Gender`), Income and Cards
 
 ```{r Class}
-
+class(Credit) # obtain class of Credit
+class(Credit$Gender) # obtain class of Gender
+class(Credit$Income) # obtain class of Income
+class(Credit$Cards) # obtain class of Cards
 ```
 
 Finally, create a vector named **Rating.vect** with data from the Rating column and display the first 6 values of this vector.
 
 ```{r Vector}
-
+Rating.vect <- Credit$Rating # assign vector
+Rating.vect[1:6] # display first 6 values
 ```
 
 ## Q3. Descriptive Analytics (12.5 pts.)
 
-Let's analyze the data quantitatively. Compute the **mean, minimum, maximum, standard deviation** and **variance** for all the values in this Rating.vect vector. Store the results in variables named **rtg.mean, rtg.min, rtg.max, rtg.stdev** and **rtg.var** respectively. Then use the `c()` function to concatenate the 5 results into a vector, but name each of the values accordingly (e.g., "Mean Rtg"=rtg.mean). Also, enclose the `c()` function inside the `print()` function and use `digits=5` to limit the significant digits to display (to 2 decimals) (e.g., `print(c(...), digits=5)`)
+Let's analyze the data quantitatively. Compute the **mean, minimum, maximum, standard deviation** and **variance** for all the values in this Rating.vect vector. Store the results in variables named **rtg.mean, rtg.min, rtg.min, rtg.stdev** and **rtg.var** respectively. Then use the `c()` function to concatenate the 5 results into a vector, but name each of the values accordingly (e.g., "Mean Rtg"=rtg.mean). Also, enclose the `c()` function inside the `print()` function and use `digits=5` to limit the significant digits to display (to 2 decimals) (e.g., `print(c(...), digits=5)`)
 
 ```{r Descriptives}
-
+rtg.mean <- mean(Rating.vect)
+rtg.min <- min(Rating.vect)
+rtg.max <- max(Rating.vect)
+rtg.stdev <- sd(Rating.vect)
+rtg.var <- var(Rating.vect)
+print(c("Mean Rtg" = rtg.mean, "Min Rtg" = rtg.min, "Max Rtg" = rtg.max, "StDev Rtg" = rtg.stdev, "Var Rtg" = rtg.var), digits = 5)
 ```
 
 Divide the plot output into 1 row and 2 columns to display 2 graphs side by side using `par(mfrow=c(1,2))`. Display a histogram for **Credit Rating**, with the main title **Credit Rating Histogram** and X label **Rating**. Since the histogram is a bit skewed to the right, display a histogram for the **Log of Credit Rating**, with the main title **Log of Credit Rating Histogram** and X label **Log Rating**. Tip: use the `log()` function (lower case) to log variables. Then, reset the graph layout to 1 by 1 using par(mfrow=c(1,1)).
@@ -76,7 +90,12 @@ Divide the plot output into 1 row and 2 columns to display 2 graphs side by side
 **Technical note:** also note in the HW template that I have sized the graphs to `fig.width=10`, `fig.height=6`. You can change this if you prefer a different graph size.
 
 ```{r Histogram, fig.width=10, fig.height=6}
+#par(mfrow=c(1,2)) # set parameters
+par(mfrow=c(1,1)) # reset parameters
 
+hist(Credit$Rating, main = "Credit Rating Histogram", xlab = "Rating", ylab = NULL) # initial histogram
+
+hist(log(Credit$Rating), main = "Log of Credit Rating Histogram", xlab = "Log Rating", ylab = NULL) # log histogram to address skewness
 ```
 
 ## Q4. Visual Analytics (12.5 pts.)
@@ -84,19 +103,33 @@ Divide the plot output into 1 row and 2 columns to display 2 graphs side by side
 Let's do some visual inspection of the data. Divide the plot output into 1 row and 2 columns to display 2 graphs side by side using `par(mfrow=c(1,2))`. Then display a box plot for **Rating** by **Gender**, and then another box plot for **Balance** by **Student**. Then, reset the graph layout to 1 by 1 using par(mfrow=c(1,1)).
 
 ```{r Boxplots, fig.width=10, fig.height=6}
+#par(mfrow=c(1,2)) # set parameters
+par(mfrow=c(1,1)) # reset parameters
 
+boxplot(Credit$Rating~Credit$Gender, main = "Box Plot by Gender", xlab = "Gender", ylab = "Credit Rating") # gender boxplot
+boxplot(Credit$Rating~Credit$Student, main = "Box Plot by Student", xlab = "Student", ylab = "Credit Rating") # student boxplot
 ```
 
 Divide again the plot output into 1 row and 2 columns to display 2 graphs side by side using `par(mfrow=c(1,2))`. Then plot Credit **Rating** (Y axis) against **Income** (X axis), with respective labels **Income** and **Credit Rating**. Then another plot for Credit **Rating** (Y axis) against **Balance** (X axis), with respective labels **Credit Rating** and **Balance**. Then, reset the graph layout to 1 by 1 using par(mfrow=c(1,1)). 
 
 ```{r ScatterPlot, fig.width=10, fig.height=6}
-
+#par(mfrow=c(1,2)) # set parameters
+par(mfrow=c(1,1)) # reset parameters
+plot(Credit$Income, Credit$Rating, main = "Income vs. Credit Rating Plot", xlab = "Income", ylab = "Credit Rating") # income vs. credit rating plot
+plot(Credit$Balance, Credit$Rating, main = "Balance vs. Credit Rating Plot", xlab = "Income", ylab = "Credit Rating") # balance vs. credit rating plot
 ```
 
 Again, divide the plot output into 1 row and 2 columns to display 2 graphs side by side using `par(mfrow=c(1,2))`. Display a qqplot (using the `qqnorm()` function and `qqline()`) for the credit rating variable, with the main title **Credit Rating QQ PLot** (use the `main=` attribute). Since the QQ Plot shows some deviation from the normal distribution line, display a QQ Plot for the **Log of Credit Rating**, with the main title **Log of Credit Rating QQ PLot** and X label **Log Rating**. Then, reset the graph layout to 1 by 1 using `par(mfrow=c(1,1))`. It looks more normally distributed, right?
 
 ```{r Normality, fig.width=10, fig.height=6}
+#par(mfrow=c(1,2)) # set parameters
+par(mfrow=c(1,1)) # reset parameters
 
+qqnorm(Credit$Rating, main = "Credit Rating QQ Plot", xlab = "Theoretical Quantiles", ylab = "Sample Quantiles")
+qqline(Credit$Rating, col = "red")
+
+qqnorm(log(Credit$Rating), main = "Log of Credit Rating QQ Plot", xlab = "Log Rating", ylab = "Sample Quantiles")
+qqline(log(Credit$Rating), col = "red")
 ```
 
 ## Q5. {ggplot} Graphs (12.5 pts.)
