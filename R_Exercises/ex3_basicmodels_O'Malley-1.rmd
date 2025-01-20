@@ -2,7 +2,7 @@
 title: "Exercise 3 - Basic Models"
 subtitle: "WLS, GLM and Logistic"
 author: "O'Malley"
-date: "`r Sys.Date()"
+date: "`r Sys.Date()`"
 output:
   word_document:
    toc: true
