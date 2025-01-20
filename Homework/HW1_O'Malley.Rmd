@@ -145,7 +145,22 @@ Then, use the `ggplot()` function again to draw a couple of scatter plots. In th
 Then draw a similar scatter plot, but this time use **Balance** (x axis) by **Rating** (y axis), faceted by **Student**.
 
 ```{r ggplot, fig.width=10, fig.height=6}
+ggplot(Credit, aes(Rating)) + 
+  geom_histogram(color = "black", fill = "grey") + # adjust histogram aesthetics
+  labs(title = "Rating Histogram", y = NULL) + # label updates
+  theme(plot.title = element_text(hjust = 0.5)) # label adjustment
 
+ggplot(Credit, aes(Income, Rating)) +
+  geom_point() + # scatterplot
+  labs(title = "Income vs. Rating Scatterplot", x = "Income", y = "Credit Rating") + # label updates
+  facet_wrap(~Gender) + # gender facet wrap
+  theme(plot.title = element_text(hjust = 0.5)) # label adjustment
+
+ggplot(Credit, aes(Balance, Rating)) +
+  geom_point() + # scatterplot
+  labs(title = "Balance vs. Rating Scatterplot", x = "Balance", y = "Credit Rating") + # label updates
+  facet_wrap(~Student) + # student facet wrap
+  theme(plot.title = element_text(hjust = 0.5)) # label adjustment
 ```
 
 ## Q6. Linear Regression Models (12.5 pts.)
@@ -153,13 +168,15 @@ Then draw a similar scatter plot, but this time use **Balance** (x axis) by **Ra
 Fit a **small** linear regression model object with the `lm()` function to predict credit **Rating** using **Income** and **Balance** as predictors. Name the resulting linear model **fit.small**. Then display the `summary()` results. 
 
 ```{r fit.small}
-
+fit.small <- lm(Rating ~ Income + Balance, Credit) # build a lm model
+summary(fit.small) # compute summary statistics
 ```
 
 Now fit a larger linear regression model, same as **fit.small**, but add 2 more predictors this time, **Age** and **Gender**. Name the resulting linear model **fit.large**. Then display the `summary()` results. 
 
 ```{r fit.large}
-
+fit.large <- lm(Rating ~ Income + Balance + Age + Gender, Credit) # build a lm model
+summary(fit.large) # compute summary statistics
 ```
 
 ## Q7. ANOVA (12.5 pts.)
@@ -169,9 +186,24 @@ Do an `anova()` test to evaluate if **fit.large** has significantly more predict
 Then provide a brief **interpretation** of your results for Q5, Q6 and Q7. Which predictors are significant? which are not? and why? which of the two models is preferred? why?
 
 ```{r anova}
-
+anova(fit.small) # anova of small model
+anova(fit.large) # anova of large model
 # IMPORTANT: I'm writing my commentary inside the R code chunk with a # text entry, only because I want to hide it for the homework. Once I turn the echo on with echo=T to show the code you will see my answer. However, you should NEVER write your interpretation reports inside the R code chunk. It looks unprofessional and some times {knitr} does not knit it well. Write all your answers outside of the code chunk.
 ```
+#### ANOVA Analysis
+While the SSE is slightly less in the **fit.large** model than in the **fit.small** model (565733 < 567878, respectively), neither of the additional variables that we added to the **fit.large** model are statistically significant (p (0.222) > 0.05 and p (0.966) > 0.05) to the model. To adhere to the principle of model simplicity, the minimal change in SSE does not offset the two additional variables and complication of the model, therefore the **fit.small** model should be used.
+
+#### Q5 Analysis
+There **Rating** variable is right skewed looking at the histogram and is confirmed by the clustering of data points in the lower ends of the scatterplots. The scatterplots also indicate a possible linear relationship between **Gender** and **Student** with **Rating**, but the skewness could result in a nonlinear relationship with further investigation. I recommend plotting the residuals to assess skewness and homoscedasticity.
+
+#### Q6 Analysis
+Comparing **fit.small** and **fit.large** models through summary statistics, we see that all variables are significant to the **fit.small** model (p (2.2e-16) < 0.05 for both **Income** and **Balance**), while adding **Gender** and **Student** to the **fit.large** model does not increase the Adjusted R-squared value (r^2 = 0.9402 in both models). The variables **Gender** and **Student** are not statistically significant the **fit.large** model either (p (0.222) > 0.05 and p (0.966) > 0.05, respectively).
+
+#### Q7 Analysis
+As stated above in *ANOVA Analysis*, the SSE of the **fit.large** model does not significantly decrease compared to the **fit.small** model and the variables **Gender** and **Student** are confirmed to be statistically insignificant to the model.
+
+#### Conclusion
+**fit.small** is the better model because the **fit.large** model does not present significant improvement by any measure and the complication of the model by adding new variables is not justified.
 
 ## Q8. Regression Plots (12.5 pts.)
 
@@ -180,6 +212,13 @@ As you should know, the linear model object contains 4 plots. But in this exerci
 Then provide a brief interpretation of what you see in the two graphs and what issues the may entail.
 
 ```{r regPlots, fig.width=10, fig.height=6}
+par(mfrow=c(1,2)) # set parameters
 
+plot(fit.large, which = 1) # plot 1
+plot(fit.large, which = 2) # plot 2
+
+#par(mfrow=c(1,1)) # reset parameters
 ```
 
+#### Analysis
+**Plot 1** (Residual vs. Fitted Plot) shows a clear nonlinear relationship in the distribution of residuals. **Plot 2** (Residual QQ Plot) also confirms this nonlinearity. The model should be first computed using a log function to see if there is a deeper nonlinear relationship that requires a multivariate quadratic model to assess. The model should also be computed using a Weighted Least Squares model to address heteroscedasticity or the fact that certain variables may not meet the independence assumption of linear models.
