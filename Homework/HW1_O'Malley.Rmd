@@ -221,4 +221,4 @@ plot(fit.large, which = 2) # plot 2
 ```
 
 #### Analysis
-**Plot 1** (Residual vs. Fitted Plot) shows a clear nonlinear relationship in the distribution of residuals. **Plot 2** (Residual QQ Plot) also confirms this nonlinearity. The model should be first computed using a log function to see if there is a deeper nonlinear relationship that requires a multivariate quadratic model to assess. The model should also be computed using a Weighted Least Squares model to address heteroscedasticity or the fact that certain variables may not meet the independence assumption of linear models.
+**Plot 1** (Residual vs. Fitted Plot) shows a clear nonlinear relationship in the distribution of residuals. **Plot 2** (Residual QQ Plot) also suggests the residuals are not normally distributed. The model should be first computed using a log transformation function to see if there is a deeper nonlinear relationship that requires a multivariate quadratic model to assess. The model should also be computed using a Weighted Least Squares model to address heteroscedasticity or the fact that certain variables may not meet the independence assumption of linear models.
