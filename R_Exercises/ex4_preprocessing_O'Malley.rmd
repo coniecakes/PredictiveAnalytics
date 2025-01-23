@@ -135,6 +135,7 @@ The log-linear model (lm.fit.log) appears to be a better fit compared to the lin
 As we discussed, there are two ways to run standardized regressions. The first one is to use the `scale()` function to standardize either the entire dataset, or specific variables of interst. However, this is a tedious process. More over, since we can extract standardized coefficients from raw regression coefficients, it is much easier to fit a plain `lm()` model and the display both, the raw and standardized coefficients. Let's do that. Since you already have a fitted linear model **lm.fit**, load the **{lm.beta}** library and use the `lm.beta()` function to extract standardized regression results. Store these results in an object named **lm.fit.std** and then display a `summary()` for this object.
 
 ```{r}
+library(lm.beta)
 lm.fit.std <- lm.beta(lm.fit) # Fit a standardized model
 
 summary(lm.fit.std) # Display the summary
