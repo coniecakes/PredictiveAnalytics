@@ -68,37 +68,42 @@ Before you do any heavy duty predictive analytis, it is always good to do some d
 1.1 Using the `ggpairs(){GGally}` function, display a correlation chart with all variables in **Salaries**. Technical note: include the attribute `upper=list(combo="box"))` for better labeling of boxplot categories.
 
 ```{r}
-
+GGally::ggpairs(Salaries, upper=list(combo="box"))
 ```   
-   
+
 1.2 Answer briefly: based on your review of the data, does it appear to be a salary gender gap? Why or why not? Identify on other promising predictor of salaries and briefly explain why is it promising.
-  
+### Analysis
+Based on the review of the data, it appears that there is a salary gender gap. The boxplot for the `salary` variable shows that the median salary for females is lower than the median salary for males. Additionally, the scatterplot matrix shows that there is a positive correlation between `salary` and `rank`, which is a promising predictor of salaries. This is because higher-ranked professors tend to have higher salaries, and `rank` is a categorical variable with clear order.
 
 1.3 Fit an OLS regression model that predicts salaries using **ALL** variables as predictors and the results in an object named **fit.ols**. Use the `summary()` function to display the results.
 
 ```{r}
+lm(salary ~ ., data = Salaries) -> fit.ols # fit lm model
 
+summary(fit.ols) # view summary
 ```
 
 1.4 If your predictive modeling goal is **inference** and you are testing the null hypothesis that there is no gender pay gap, what is your conclusion based on the **ols.fit** results? 
-
+### Analysis
+Based on the results of the summary statistics of `fit.ols` and the p-value of the dummy variable `sexMale` is 0.215 which is greater than the level of significance (0.05), meaning that the variable is statistically insignificant to this model. This means according to this model, there is no gender pay gap.
 
 ## 2. (15 pts.) Heteroskedasticity and WLS
 
 2.1 Conduct a **Breusch-Pagan** test for Heteroskedasticity for the **fit.ols** model above.
 
 ```{r}
-
+lmtest::bptest(fit.ols) # Breusch-Pagan Test
 ```
 
 2.2 Display the first residual plot for **fit.ols** by using `which=1`.
    
 ```{r}
-
+plot(fit.ols, which = 1) # first residual plot
 ```
 
 2.3 Is there a problem with Heteroskedasticity? Why or why not? In your answer, please refer to **both**, the BP test and the residual plot.  
-    
+### Analysis
+Yes, there is a problem with heteroscedasticity in the model. The Breusch-Pagan test resulted in a p-value of 4.205e-12 < 0.05, meaning that we reject the $H0$ that homoscedasticity is present in the model. The first residual plot shows a general cone shape distribution 
 
 2.4 Fit a **WLS** model using residuals from the **fit.ols** model. Store this new model in an object named **fit.wls**. Display the `summary()` results fo your WLS model.
 
