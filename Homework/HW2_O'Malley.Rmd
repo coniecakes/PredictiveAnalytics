@@ -59,7 +59,7 @@ data(Salaries)
 
 ## 1. (15 pts.) Stats and Regression Refresher
 
-Before you do any heavy duty predictive analytis, it is always good to do some descriptive analytics and simple OLS models to develop some familiarity with the data and the reletionships among variables.
+Before you do any heavy duty predictive analysis, it is always good to do some descriptive analytics and simple OLS models to develop some familiarity with the data and the relationships among variables.
 
 1.1 Using the `ggpairs(){GGally}` function, display a correlation chart with all variables in **Salaries**. Technical note: include the attribute `upper=list(combo="box"))` for better labeling of boxplot categories.
 
@@ -77,11 +77,11 @@ lm(salary ~ ., data = Salaries) -> fit.ols # fit lm model
 summary(fit.ols) # view summary
 ```
 
-1.4 If your predictive modeling goal is **inference** and you are testing the null hypothesis that there is no gender pay gap, what is your conclusion based on the **ols.fit** results? 
+1.4 If your predictive modeling goal is **inference** and you are testing the null hypothesis that there is no gender pay gap, what is your conclusion based on the **ols.fit** results?
 
-### Analysis 
+### Analysis
 
-Based on the results of the summary statistics of `fit.ols` and the p-value of the dummy variable `sexMale` is 0.215 which is greater than the level of significance (0.05), meaning that the variable is statistically insignificant to this model. This means according to this model, there is no gender pay gap.
+Based on the results of the summary statistics of `fit.ols` and the `p-value` of the dummy variable `sexMale` is 0.215 which is greater than the level of significance (0.05), meaning that the variable is statistically insignificant to this model. This means according to this model, there is no gender pay gap.
 
 ## 2. (15 pts.) Heteroskedasticity and WLS
 
@@ -99,9 +99,9 @@ plot(fit.ols, which = 1) # first residual plot
 
 2.3 Is there a problem with Heteroskedasticity? Why or why not? In your answer, please refer to **both**, the BP test and the residual plot.\
 
-### Analysis 
+### Analysis
 
-Yes, there is a problem with heteroscedasticity in the model. The Breusch-Pagan test resulted in a p-value of 4.205e-12 \< 0.05, meaning that we reject the $H0$ that homoscedasticity is present in the model. The first residual plot shows a general cone shape distribution and an uneven distribution within the cone, confirming the presence of heteroscedasticity.
+Yes, there is a problem with heteroscedasticity in the model. The Breusch-Pagan test resulted in a `p-value` of 4.205e-12 \< 0.05, meaning that we reject the $H0$ that homoscedasticity is present in the model. The first residual plot shows a general cone shape distribution and an uneven distribution within the cone, confirming the presence of heteroscedasticity.
 
 2.4 Fit a **WLS** model using residuals from the **fit.ols** model. Store this new model in an object named **fit.wls**. Display the `summary()` results fo your WLS model.
 
@@ -119,19 +119,21 @@ fit_wls <- lm(salary ~ ., data = Salaries, weights = wts) # fit WLS model
 summary(fit_wls) # view summary statistics
 ```
 
-2.5 Respond briefly: based on your WLS results, is there empirical evidence of gender salary inequality? Do you believe the WLS or the OLS model? Why? 
+2.5 Respond briefly: based on your WLS results, is there empirical evidence of gender salary inequality? Do you believe the WLS or the OLS model? Why?
 
-### Analysis 
+### Analysis
 
-Based on the WLS results, there is no empirical evidence of gender salary inequality because the dummy variable `sexMale` is statistically insignificant to the model because p (0.103) \> 0.05 confidence level. I believe the WLS model because there are more significant variables after adding the weights, the Adjusted R-squared has increased from 0.4463 to 0.7144 (OLS and WLS, respectively), and the model p value (2.2e-16) \< 0.05 confidence level.
+Based on the WLS results, there is no empirical evidence of gender salary inequality because the dummy variable `sexMale` is statistically insignificant to the model because `p-value` (0.103) \> 0.05 confidence level. I believe the WLS model because there are more significant variables after adding the weights, the Adjusted R-squared has increased from 0.4463 to 0.7144 (OLS and WLS, respectively), and the model p value (2.2e-16) \< 0.05 confidence level.
 
 ## 3. (15 pts.) Transformations: Categorical Data
 
 3.1 Load the **{MASS}** library and use the `levels()` function to take a look at the levels of the **AirBags** factor variable in the Cars93 dataset. Then fit a regression model using the **Cars93** data set to predict **Price** (i.e., average car price in thousands of dollars) as a function of **Type, MPG.city, AirBags** and **Origin**. Store the results in an object named **lm.fit**. Then, display the `summary()` results of this model (you can try ?Cars93 at the console to get some information on the dataset).
 
-**Caution:** A common mistake is to re-fit this model in **3.1** below after re-leveling in **3.3**. If you use the `relevel()` function in **3.3** below and then come back to **3.1**, the data set will be already re-leveled, so you won't get the same results as the solution. If you knit the full R Markdown file, your results will be OK (because knitting starts from scratch), but if you run portions of the code, you may not get the correct results. For this part of the exercise, the refernce level should be the first one alphabetically, that is **Driver & Passenger**. If you don't get this, `relevel()` back to **Driver & Passenger** or click on the little broom on the right upper pane to clear your global environment and re-open your **MASS** library and the **Cars93** dataset fresh.
+**Caution:** A common mistake is to re-fit this model in **3.1** below after re-leveling in **3.3**. If you use the `relevel()` function in **3.3** below and then come back to **3.1**, the data set will be already re-leveled, so you won't get the same results as the solution. If you knit the full R Markdown file, your results will be OK (because knitting starts from scratch), but if you run portions of the code, you may not get the correct results. For this part of the exercise, the reference level should be the first one alphabetically, that is **Driver & Passenger**. If you don't get this, `relevel()` back to **Driver & Passenger** or click on the little broom on the right upper pane to clear your global environment and re-open your **MASS** library and the **Cars93** dataset fresh.
 
 ```{r}
+library(MASS)
+attach(Cars93)
 levels(Cars93$AirBags) # view the levels of AirBags variable
 
 lm.fit <- lm(Price ~ Type + MPG.city + AirBags + Origin, Cars93) # fit a linear regression model
@@ -139,13 +141,13 @@ lm.fit <- lm(Price ~ Type + MPG.city + AirBags + Origin, Cars93) # fit a linear 
 summary(lm.fit) # view summary statistics
 ```
 
-3.2 Provide a brief interpretation of the coefficient values and significance for the **AirBagsDriver only** and **AirBagsNone predictors**. In your answer, please identify the reference level Please remember to comment on the sign of the effect. 
+3.2 Provide a brief interpretation of the coefficient values and significance for the **AirBagsDriver only** and **AirBagsNone predictors**. In your answer, please identify the reference level Please remember to comment on the sign of the effect.
 
 ### Analysis
 
--   `AirBagDriver only`: $B$ = -4.3447, meaning on average, holding everything else constant, there will be a -4.3447 change in price in relation to `Driver & Passenger`, which is the reference level of the dummy variable for `AirBags`. The negative coefficient value means that when the dummy variable for `AirBagDriver only` = 1, the price decreases, meaning this characterstic is less valuable in terms of price when compared to the reference level. The variable is significant to the model because p (0.025) \< 0.05 confidence level. 
+-   `AirBagDriver only`: $B$ = -4.3447, meaning on average, holding everything else constant, there will be a -4.3447 change in price in relation to `Driver & Passenger`, which is the reference level of the dummy variable for `AirBags`. The negative coefficient value means that when the dummy variable for `AirBagDriver only` = 1, the price decreases, meaning this characteristic is less valuable in terms of price when compared to the reference level. The variable is significant to the model because `p-value` (0.025) \< 0.05 confidence level.
 
--   `AirBagsNone`: $B$ = -8.9089, meaning on average, holding everything else constant, there will be a -4.3447 change in price in relation to `Driver & Passenger` (reference level). The negative coefficient value means that when the dummy variable for `AirBagsNone` = 1, the price decreases, meaning this characterstic is less valuable in terms of price when compared to the reference level. The variable is statistically significant to the model beacuse p (0.000590) \< 0.05 confidence level.
+-   `AirBagsNone`: $B$ = -8.9089, meaning on average, holding everything else constant, there will be a -4.3447 change in price in relation to `Driver & Passenger` (reference level). The negative coefficient value means that when the dummy variable for `AirBagsNone` = 1, the price decreases, meaning this characteristic is less valuable in terms of price when compared to the reference level. The variable is statistically significant to the model because `p-value` (0.000590) \< 0.05 confidence level.
 
 3.3 Now, suppose that you want to compare prices of cars with air bags to those without airbags. Do this, please `relevel()` the **AirBags** factor variable so that the reference level is changed to **"None"**. Fit the regression model again after re-leveling the AirBags predictor. Store this re-leveled `lm()` object as **lm.fit.rlv**. Display the `summary()` results of this model.
 
@@ -161,14 +163,14 @@ summary(lm.fit.rlv) # view summary statistics
 
 ### Analysis
 
-In the new model `lm.fit.rlv`, `AirBagsDrive only` had a $B$ change from -4.3447 to 4.5643 - meaning on average, everything else held constant, there is a price change of 4.5643 in relation to the reference level of `None`. This means that the characterstic associated with `AirBagsDrive only` increases the price in comparison to `None` (presumably that driver only air bags is more valuable than no airbags). The p values of the `AirBags` coefficients have changed since they are now being related to a new reference level - `AirBagsNone`. The rest of the model (p values, coefficients, Adjusted R-squared) all remain constant since the levels of the `AirBag` variable were only refactored and no data was added or removed from the overall model.
+In the new model `lm.fit.rlv`, `AirBagsDrive only` had a $B$ change from -4.3447 to 4.5643 - meaning on average, everything else held constant, there is a price change of 4.5643 in relation to the reference level of `None`. This means that the characteristic associated with `AirBagsDrive only` increases the price in comparison to `None` (presumably that driver only air bags is more valuable than no airbags). The p values of the `AirBags` coefficients have changed since they are now being related to a new reference level - `AirBagsNone`. The rest of the model (p values, coefficients, Adjusted R-squared) all remain constant since the levels of the `AirBag` variable were only refactored and no data was added or removed from the overall model.
 
 ## 4. (20 pts.) Transformations: Log-Log Model
 
 4.1 Using the `read.table()` function, read the **Credit.csv** data set into a data frame named **credit**. Ensure that you use `header=T` and `sep=","`. We want to use this data to predict credit **Rating**. First, display a histogram and a QQ-Plot for the **Rating** variable. It should be pretty obvious from the histogram that this variable is (skewed) not normal, although the QQ-Plot is borderline.
 
 ```{r}
-credit <- read.table("Homework/Credit.csv.csv", header = T, sep = ",") # read data into data frame
+credit <- read.table("/Users/coniecakes/Library/CloudStorage/OneDrive-Personal/001. Documents - Main/023. Programming Tools/R Studio/Predictive Analytics/Homework/Credit.csv", header = T, sep = ",") # read data into data frame
 
 hist(credit$Rating) # plot histogram
 qqnorm(credit$Rating) # plot normal qq plot
@@ -225,18 +227,16 @@ summary(lm.std)
 
 ### Analysis
 
-- Unstandardized: coefficients reflect the change in the response variable for a one unit change in predictor variables, holding all other variables constant
-- Standardized: variables are transformed to have a $mu$ = 0 and $sd$ = 1. Coefficients now represent the change in the response variable in units of standard deviation for a single standard deviation change in the predictor variables, allowing for easier strength of relationship comparison.
+-   Unstandardized: coefficients reflect the change in the response variable for a one unit change in predictor variables, holding all other variables constant
+-   Standardized: variables are transformed to have a $mu$ = 0 and $sd$ = 1. Coefficients now represent the change in the response variable in units of standard deviation for a single standard deviation change in the predictor variables, allowing for easier strength of relationship comparison.
 
-Using standardized variables makes it easier to interpret the strenght of realtionships across variables and makes interpreting variables with different scales easier.
-
+Using standardized variables makes it easier to interpret the strength of relationships across variables and makes interpreting variables with different scales easier.
 
 5.4 Answer briefly: is it OK to standardize binary or categorical variables like "Type" or "AirBags"? How would you get around this issue?
 
 ### Analysis
 
 It's generally unacceptable to standardize binary or categorical variables because they are not continuous variables, rather discrete categories. Leaving categorical or binary variables as is for analysis or using dummy variables are two ways to get around the issue.
-
 
 ## 6. (20 pts.) Transformations: Lagged Variables and Serial Correlation
 
@@ -251,23 +251,43 @@ economics = as.data.frame(economics) # To fix the dataset glitch
 
 Now, from the **R Console** (NOT in the script), enter `?economics` to view the explanation of the variables in the data set. Familiarize yourself with the variables and their units, so that you can interpret results correctly. You will be developing a predictive model for **unemployment**.
 
-6.1 First, use `options(scipen=4)` to limit the display of scientific notation. Then fit a linear model to predict umemployment (**unemploy**) as a function of date (**date**), personal consumption expenditures (**pce**), duration of unemployment (**uempmed**), personal savings (**psavert**), and total population (**pop**). Name this model **fit.no.lag**. Display the `summary()` result for the resulting linear model.
+6.1 First, use `options(scipen=4)` to limit the display of scientific notation. Then fit a linear model to predict unemployment (**unemploy**) as a function of date (**date**), personal consumption expenditures (**pce**), duration of unemployment (**uempmed**), personal savings (**psavert**), and total population (**pop**). Name this model **fit.no.lag**. Display the `summary()` result for the resulting linear model.
 
 ```{r}
+options(scipen = 4) # change scientific notation
 
+fit.no.lag <- lm(unemploy ~ date + pce + uempmed + psavert + pop, economics) # fit a linear regression model
+summary(fit.no.lag) # view summary statistics
 ```
 
-6.2 It should be obvioius from the results above that this appears to be a good model. But unemployment in one period may affect unemployment in subsequent periods, so we need to inspect for serial correlation. Display a scatter plot with `economics$date` (month of the observation) in the horizontal axis and the **residuals** of **fit.no.lag** in the vertical axis.
+6.2 It should be obvious from the results above that this appears to be a good model. But unemployment in one period may affect unemployment in subsequent periods, so we need to inspect for serial correlation. Display a scatter plot with `economics$date` (month of the observation) in the horizontal axis and the **residuals** of **fit.no.lag** in the vertical axis.
 
 Then, briefly comment if you suspect serial correlation and why (1 or 2 lines), based on what you see on this plot.
+
+```{r}
+residuals_no_lag <- residuals(fit.no.lag) # calculate residuals
+
+plot(economics$date, residuals_no_lag,
+    main = "Residuals Over Time",
+    xlab = "Date",
+    ylab = "Reisudals")
+```
+
+### Analysis
+
+There is a clear pattern in this data, showing some sort of abnormal distribution of residuals. This signals there is a high likelihood of serial correlation in this model.
 
 6.3 Now load the **{lmtest}** library and run a Durbin-Wastson test to confirm or not that the model suffers from serial correlation.
 
 ```{r}
-
+lmtest::dwtest(fit.no.lag) # conduct Durbin-Watson test
 ```
 
 Then, briefly comment if the DW test confirms or not the presence of serial correlation, whether it is positive or negative and why or why not.
+
+### Analysis
+
+The `DW Statistic` = 0.18485, meaning there is a strong, positive serial correlation and the `p-value` (2.2e-16) \< 0.05 confidence level means we reject $H0$ that there is no serial correlation.
 
 6.4 Regardless of your answer above, go ahead and correct for serial correlation. My intuition tells me that unemployment in the previous month is a strong predictor of the unemployment this month. Also, I suspect that the unemployment on the same month a year ago may also influence unemployment this month.
 
@@ -276,17 +296,52 @@ So, let's go ahead and load the **{DataCombine}** library and use the `slide()` 
 Also, display all columns of the first **15 rows (only)** of the **date** and all three **unemploy** variables and observe how the lag columns were created. Tip, use `economics[1:15,c("date", "unemploy", "unemploy.L1", "unemploy.L12")]`
 
 ```{r}
+economics <- DataCombine::slide(economics, Var = "unemploy", # 1 month lag
+                              NewVar = "unemploy.L1", 
+                              slideBy = -1)
 
+economics <- DataCombine::slide(economics, Var = "unemploy", # 12 month lag
+                              NewVar = "unemploy.L12", 
+                              slideBy = -12)
+
+economics[1:15, c("date", "unemploy", "unemploy.L1", "unemploy.L12")] # sanity check
 ```
 
-6.5 Fit the same linear model above, but add the predictors **unemploy.L1** and **unemploy.L12**. Store the resulst of this model in an object named **fit.lag** Display the linear model `summary()` results.
+6.5 Fit the same linear model above, but add the predictors **unemploy.L1** and **unemploy.L12**. Store the results of this model in an object named **fit.lag** Display the linear model `summary()` results.
 
 Then test this model for serial correlation with a **Durbin-Watson** test.
 
 ```{r}
-
+fit.lag <- lm(unemploy ~ date + pce + uempmed + psavert + 
+              pop + unemploy.L1 + unemploy.L12, economics) # fit a linear regression model
+summary(fit.lag) # view summary statistics
 ```
 
 6.6 Was serial correlation corrected with the lagged model? Why or why not?
 
+```{r}
+residuals_lag <- residuals(fit.lag) # calculate residuals with lag
+
+lagged_residuals <- c(rep(NA, 12), residuals_lag[1:(length(residuals_lag) - 12)])
+
+plot(economics$date[13:length(economics$date)], lagged_residuals,
+    main = "Residuals Over Time with Lag",
+    xlab = "Date",
+    ylab = "Reisudals")
+```
+
+### Analysis
+
+By looking at the `Residuals Over Time with Lag` plot, we can see that the distribution is appropriate to assume a random distribution with no underlying, unaccounted for relationships. The correlation has been corrected with the lagged model (particularly the 12 month). Reviewing the summary statistics, the Adjusted R-squared value has increased from 0.8771 to 0.9942, the model `p-value` (2.2e-16) \< 0.05 confidence level, and both lagged variables are statistically significant with `p-value` \< 0.05 confidence level.
+
 6.7 Run `?economics` in the console and take note of the description and units of all variables in this dataset. Then briefly discuss the difference in significant predictors (only) between the **fit.no.lag** and **fit.lag** models. Then provide a well-articulated interpretation of the coefficients of the 2 lagged variables in **fit.lag**.
+
+### Analysis
+
+-   `fit.no.lag`: the significant predictors are: `date`, `pce` (personal consumption expenditures in billions USD), `unempmed` (median duration of unemployment in weeks), `psavert` (personal savings rate), and `pop` (total population in thousands).
+
+-   `fit.lag`: the significant predictors are: `unempmed`, `psavert`, `unemploy.L1` (1 month unemployment lag), `unemploy.L12` (12 month unemployment lag).
+
+-   `unemploy.L1`: $B$ = 1.065, meaning that on average, everything else held constant, for every one unit increase in the previous month's unemployment, there is a 1.065 unit increase in the current month's unemployment. This suggests there is a relationship in unemployment from month to month. This variable is statistically significant because `p-value` (2e-16) \< 0.05 confidence level.
+
+-   `unemploy.L2`: $B$ = -0.055, meaning that on average, everything else held constant, for every one unit increase in the employment of the month 12 month's prior, there is a 0.055 unit decrease in the current month's unemployment. This means there is a weak relationship between unemployment from 12 months prior to the current month. This relationship is still statistically significant to the model with `p-value` (2.31e-09) \< 0.05 confidence level.
