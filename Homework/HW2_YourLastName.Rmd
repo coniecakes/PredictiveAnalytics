@@ -1,0 +1,254 @@
+---
+title: "ITEC 621 - Homework 2 - Regression Refresher and Data Pre-Processing"
+subtitle: "Kogod School of Business"
+author: "O'Malley, COnie"
+date: "`r Sys.Date()`"
+output: 
+  word_document:
+     toc: true
+     toc_depth: 2
+---
+
+```{r global_options}
+knitr::opts_chunk$set(echo=T, warning=F, message=F)
+```
+
+## Submission
+
+Download the **HW2_YourLastName.Rmd** R Markdown file and save it with your own last name. Complete all your work in that template file, **Knit** the corresponding Word or PDF file. Your knitted document **must display your R commands**. Submit your knitted homework document. No need to submit the .Rmd file, just your knitted file.
+
+Also, please prepare your R Markdown file with a **professional appearance**, as you would for top management or an important client. 
+
+<span style="color:blue">Please, write all your interpretation narratives outside of the R code chunks, with the appropriate formatting and businesslike appearance</span>. I write all my comments inside of the R code chunk to suppress their display until I print the solution, but you should not do this. I will read your submission as a report to a client or senior management. Anything unacceptable to that audience is unacceptable to me.
+
+
+## A Few More Things About R Markdown
+
+R Markdown can have various sections. We will use 4 of them: 
+
+**(1) The YAML Header**.  YAML is a "recursive acronym that stands for "YAML Ain't Markup Language". What it means is that this section does not contain R Markup code yet, but only metadata about the file. It is delimited by triple dashes, and it contains things like your name, date, output type, etc.
+
+**(2) The Global Options**. It is a code chunk at the top of the R Markdown file named `global_options`, in which you can set global parameters affecting the entire R Markdown file. If you change an option (e.g., echo=T) in a specific code chunk below, this option will supersede the global option for that code chunk only.
+
+**(3) Markdown Text Sections**. This is the area where you type all your text. This is where you can add "marked down" codes to do things like: change font types, colors and sizes; boldface, underline, etc. See the R Markdown cheat sheet on Blackboard or online.
+ 
+**(4) Code Chunk** Sections. These are sections with **R code** you embed in between sections delimited between ` ```{r} and ``` `. Your R code inside these chunks must comform to the R language syntax. Code chunks can be nameless as above, or you can name them ` ```{r CodeChunkName} `. If you decide to name your code chunks, the names must be unique within the R Markdown file. Code chunk names are useful when debugging complex scripts and also to identify scripts in R code libraries you may have created or downloaded. The R code in a chunk will only print if you set `echo=T` either in the global options or in the code chunk itself.
+
+Please ensure that your text and R code are in the correct sections and use appropriate tags and formats. 
+
+
+## Specific Instructions
+
+This HW has **6 multi-part questions** related to **refreshers** and data **pre-processing**. Some question are worth **15 points** and some **20 points**. 
+
+
+## Prep Work
+
+- Load the {car} library
+- Load the Salaries data set in {car} using data(Salaries)
+- I suggest that you enter Enter `?Salaries` and review the data set information. **DON'T do this in the script**, but just in the R Console. In this and all subsequent HW and exercises, you should always inspect the data documentation and browse the data, so that you become familiarized.
+- This data were collected to monitor salary differences between male and female faculty members in U.S. colleges.
+
+```{r}
+# Done for you
+library(car)
+data(Salaries)
+
+# Enter the commands below in the R Command window, but not in the R Markdown file (i.e., this is for you, not for the report)
+
+# ?Salaries
+# View(Salaries)
+```
+
+
+## 1. (15 pts.) Stats and Regression Refresher
+
+Before you do any heavy duty predictive analytis, it is always good to do some descriptive analytics and simple OLS models to develop some familiarity with the data and the reletionships among variables.
+
+1.1 Using the `ggpairs(){GGally}` function, display a correlation chart with all variables in **Salaries**. Technical note: include the attribute `upper=list(combo="box"))` for better labeling of boxplot categories.
+
+```{r}
+
+```   
+   
+1.2 Answer briefly: based on your review of the data, does it appear to be a salary gender gap? Why or why not? Identify on other promising predictor of salaries and briefly explain why is it promising.
+  
+
+1.3 Fit an OLS regression model that predicts salaries using **ALL** variables as predictors and the results in an object named **fit.ols**. Use the `summary()` function to display the results.
+
+```{r}
+
+```
+
+1.4 If your predictive modeling goal is **inference** and you are testing the null hypothesis that there is no gender pay gap, what is your conclusion based on the **ols.fit** results? 
+
+
+## 2. (15 pts.) Heteroskedasticity and WLS
+
+2.1 Conduct a **Breusch-Pagan** test for Heteroskedasticity for the **fit.ols** model above.
+
+```{r}
+
+```
+
+2.2 Display the first residual plot for **fit.ols** by using `which=1`.
+   
+```{r}
+
+```
+
+2.3 Is there a problem with Heteroskedasticity? Why or why not? In your answer, please refer to **both**, the BP test and the residual plot.  
+    
+
+2.4 Fit a **WLS** model using residuals from the **fit.ols** model. Store this new model in an object named **fit.wls**. Display the `summary()` results fo your WLS model.
+
+**Technical Note:** As I mentioned in class, by far the most common error when fitting WLS models is this: `fit.wls=lm(fit.ols, data= ....)`. You cannot have an `lm()` fitted object inside an `lm()` function. It doesn't make sense to have an object created by a function inside the same function. Instead of using **fit.ols**, type in the regression formula, like you do in any `lm()` model. Alternatively, store the formula in a formula object like **lm.formula** and enter enter it instead of **fit.all**.
+
+```{r}
+
+```
+
+2.5 Respond briefly: based on your WLS results, is there empirical evidence of gender salary inequality? Do you believe the WLS or the OLS model? Why?
+
+
+## 3. (15 pts.) Transformations: Categorical Data
+
+3.1 Load the **{MASS}** library and use the `levels()` function to take a look at the levels of the **AirBags** factor variable in the Cars93 dataset. Then fit a regression model using the **Cars93** data set to predict **Price** (i.e., average car price in thousands of dollars) as a function of **Type, MPG.city, AirBags** and **Origin**. Store the results in an object named **lm.fit**. Then, display the `summary()` results of this model (you can try ?Cars93 at the console to get some information on the dataset).
+
+**Caution:** A common mistake is to re-fit this model in **3.1** below after re-leveling in **3.3**. If you use the `relevel()` function in **3.3** below and then come back to **3.1**, the data set will be already re-leveled, so you won't get the same results as the solution. If you knit the full R Markdown file, your results will be OK (because knitting starts from scratch), but if you run portions of the code, you may not get the correct results. For this part of the exercise, the refernce level should be the first one alphabetically, that is **Driver & Passenger**. If you don't get this, `relevel()` back to **Driver & Passenger** or click on the little broom on the right upper pane to clear your global environment and re-open your **MASS** library and the **Cars93** dataset fresh.
+
+```{r}
+
+```
+
+3.2 Provide a brief interpretation of the coefficient values and significance for the **AirBagsDriver only** and **AirBagsNone predictors**. In your answer, please identify the reference level Please remember to comment on the sign of the effect.
+
+
+
+3.3 Now, suppose that you want to compare prices of cars with air bags to those without airbags. Do this, please `relevel()` the **AirBags** factor variable so that the reference level is changed to **"None"**. Fit the regression model again after re-leveling the AirBags predictor. Store this re-leveled `lm()` object as **lm.fit.rlv**. Display the `summary()` results of this model.
+
+```{r}
+
+```
+
+3.4 Inspect the coefficients in the two models (before and after re-leveling) and answer briefly: What is the difference in interpretation for the effect of **AirBagsDrive only** between **lm.fit** and **lm.fit.rlv**? Did anything else change? Please explain briefly.
+
+
+
+## 4. (20 pts.) Transformations: Log-Log Model
+
+4.1 Using the `read.table()` function, read the **Credit.csv** data set into a data frame named **credit**. Ensure that you use `header=T` and `sep=","`. We want to use this data to predict credit **Rating**. First, display a histogram and a QQ-Plot for the **Rating** variable. It should be pretty obvious from the histogram that this variable is (skewed) not normal, although the QQ-Plot is borderline.
+
+```{r}
+
+```
+
+4.2 Even if the response variable were not normal, if the residual of the regression model is fairly normal, then it is OK to use the response variable without transformation. Let's explore that. Fit a model called **fit.linear** to predict **Rating**, using **Income, Age** and **Gender** as predictors. Display a `summary()` of the results. Then `plot()` the resulting **fit.linear model**, but display only the residual plot, using the **which=2** parameter.
+
+```{r}
+
+```
+
+4.3 The residuals look normally distributed in the center of the QQ-Plot and wagging some at the tails. Let's fit a couple of log models to see if we can improve upon the linear model. Please fit both, a **log-linear model** (loging only the response variable **Rating**) and a **log-log** (loging only the response variable **Rating** and and the predictor **Income**). Store the results of the first model in an object named **fit.log.linear** and the second one in an object named **fit.log.log**. Display the `summary()` for both models.
+
+```{r}
+
+```
+
+4.4 Please provide a quick interpretation of the Income or log(Income) coefficient for each of the **three models** fitted above.
+
+
+
+4.5 Using the **Adjusted R-Square** as a guide, which of the three models is the best (please note that you **cannot** compare the 3 models with ANOVA because they are not nested)
+
+
+
+
+## 5. (15 pts.) Transformations: Standardization
+
+5.1 Using the **Cars93{MASS}** data set, fit a model to predict a car's **price** as a function of the car's **type, city miles per gallon, air bags** and **origin**. Store the results in an object named **fit.unstd** and display the `summary()` results for this linear model object.
+
+```{r}
+
+```
+
+5.2 Then, using the **lm.beta(){lm.beta}** function, extract and the standardized regression coefficients for this model and display the results. Store the results in an object named **lm.std** and display its `summary()`.
+
+```{r}
+
+```
+
+5.3 Answer briefly: what is the difference between the unstandardized and standardized regression results? Why would you use standardized variables or coefficients?
+
+
+
+5.4 Answer briefly: is it OK to standardize binary or categorical variables like "Type" or "AirBags"? How would you get around this issue?
+
+
+
+
+## 6. (20 pts.) Transformations: Lagged Variables and Serial Correlation
+
+Somtimes data sets contain more complex data structures within them. This is the case with the **economics** data set contained in the **{ggplot2}** library, which we will use for this exercise. Unfortunately, there is a small glitch in this dataset (it has a data frame inside one of the columns), which causes the <span style="color:red">**slide() function to give an error**</span>. Fortunately, there is a simple fix for this by just re-creating the data frame. I have done this for you already in the script. 
+
+```{r}
+# Done for you
+library(ggplot2)
+data(economics)
+economics = as.data.frame(economics) # To fix the dataset glitch
+```
+
+Now, from the **R Console** (NOT in the script), enter `?economics` to view the explanation of the variables in the data set. Familiarize yourself with the variables and their units, so that you can interpret results correctly. You will be developing a predictive model for **unemployment**.
+
+6.1 First, use `options(scipen=4)` to limit the display of scientific notation. Then fit a linear model to predict umemployment (**unemploy**) as a function of  date (**date**), personal consumption expenditures (**pce**), duration of unemployment (**uempmed**), personal savings (**psavert**), and total population (**pop**). Name this model **fit.no.lag**. Display the `summary()` result for the resulting linear model. 
+
+```{r}
+
+```
+
+6.2 It should be obvioius from the results above that this appears to be a good model. But unemployment in one period may affect unemployment in subsequent periods, so we need to inspect for serial correlation. Display a scatter plot with `economics$date` (month of the observation) in the horizontal axis and the **residuals** of **fit.no.lag** in the vertical axis.
+
+Then, briefly comment if you suspect serial correlation and why (1 or 2 lines), based on what you see on this plot.
+
+
+
+
+6.3 Now load the **{lmtest}** library and run a Durbin-Wastson test to confirm or not that the model suffers from serial correlation.
+
+```{r}
+
+```
+
+Then, briefly comment if the DW test confirms or not the presence of serial correlation, whether it is positive or negative and why or why not.
+
+
+
+
+6.4 Regardless of your answer above, go ahead and correct for serial correlation. My intuition tells me that unemployment in the previous month is a strong predictor of the unemployment this month. Also, I suspect that the unemployment on the same month a year ago may also influence unemployment this month.
+
+So, let's go ahead and load the **{DataCombine}** library and use the `slide()` function to create 2 lagged variables called **unemploy.L1** (lagged 1 month) and **unemploy.L12** (lagged 12 months).
+
+Also, display all columns of the first **15 rows (only)** of the **date** and all three **unemploy** variables and observe how the lag columns were created. Tip, use `economics[1:15,c("date", "unemploy", "unemploy.L1", "unemploy.L12")]`
+
+```{r}
+
+```
+
+6.5 Fit the same linear model above, but add the predictors **unemploy.L1** and **unemploy.L12**. Store the resulst of this model in an object named **fit.lag**  Display the linear model `summary()` results. 
+
+Then test this model for serial correlation with a **Durbin-Watson** test.
+
+```{r}
+
+```
+
+6.6 Was serial correlation corrected with the lagged model? Why or why not?
+
+
+
+
+6.7 Run `?economics` in the console and take note of the description and units of all variables in this dataset. Then briefly discuss the difference in significant predictors (only) between the **fit.no.lag** and **fit.lag** models. Then provide a well-articulated interpretation of the coefficients of the 2 lagged variables in **fit.lag**.
+
+
+
+
