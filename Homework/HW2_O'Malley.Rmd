@@ -17,37 +17,34 @@ knitr::opts_chunk$set(echo=T, warning=F, message=F)
 
 Download the **HW2_YourLastName.Rmd** R Markdown file and save it with your own last name. Complete all your work in that template file, **Knit** the corresponding Word or PDF file. Your knitted document **must display your R commands**. Submit your knitted homework document. No need to submit the .Rmd file, just your knitted file.
 
-Also, please prepare your R Markdown file with a **professional appearance**, as you would for top management or an important client. 
+Also, please prepare your R Markdown file with a **professional appearance**, as you would for top management or an important client.
 
-<span style="color:blue">Please, write all your interpretation narratives outside of the R code chunks, with the appropriate formatting and businesslike appearance</span>. I write all my comments inside of the R code chunk to suppress their display until I print the solution, but you should not do this. I will read your submission as a report to a client or senior management. Anything unacceptable to that audience is unacceptable to me.
-
+[Please, write all your interpretation narratives outside of the R code chunks, with the appropriate formatting and businesslike appearance]{style="color:blue"}. I write all my comments inside of the R code chunk to suppress their display until I print the solution, but you should not do this. I will read your submission as a report to a client or senior management. Anything unacceptable to that audience is unacceptable to me.
 
 ## A Few More Things About R Markdown
 
-R Markdown can have various sections. We will use 4 of them: 
+R Markdown can have various sections. We will use 4 of them:
 
-**(1) The YAML Header**.  YAML is a "recursive acronym that stands for "YAML Ain't Markup Language". What it means is that this section does not contain R Markup code yet, but only metadata about the file. It is delimited by triple dashes, and it contains things like your name, date, output type, etc.
+**(1) The YAML Header**. YAML is a "recursive acronym that stands for "YAML Ain't Markup Language". What it means is that this section does not contain R Markup code yet, but only metadata about the file. It is delimited by triple dashes, and it contains things like your name, date, output type, etc.
 
 **(2) The Global Options**. It is a code chunk at the top of the R Markdown file named `global_options`, in which you can set global parameters affecting the entire R Markdown file. If you change an option (e.g., echo=T) in a specific code chunk below, this option will supersede the global option for that code chunk only.
 
 **(3) Markdown Text Sections**. This is the area where you type all your text. This is where you can add "marked down" codes to do things like: change font types, colors and sizes; boldface, underline, etc. See the R Markdown cheat sheet on Blackboard or online.
- 
-**(4) Code Chunk** Sections. These are sections with **R code** you embed in between sections delimited between ` ```{r} and ``` `. Your R code inside these chunks must comform to the R language syntax. Code chunks can be nameless as above, or you can name them ` ```{r CodeChunkName} `. If you decide to name your code chunks, the names must be unique within the R Markdown file. Code chunk names are useful when debugging complex scripts and also to identify scripts in R code libraries you may have created or downloaded. The R code in a chunk will only print if you set `echo=T` either in the global options or in the code chunk itself.
 
-Please ensure that your text and R code are in the correct sections and use appropriate tags and formats. 
+**(4) Code Chunk** Sections. These are sections with **R code** you embed in between sections delimited between ```` ```{r} and ``` ````. Your R code inside these chunks must comform to the R language syntax. Code chunks can be nameless as above, or you can name them ```` ```{r CodeChunkName} ````. If you decide to name your code chunks, the names must be unique within the R Markdown file. Code chunk names are useful when debugging complex scripts and also to identify scripts in R code libraries you may have created or downloaded. The R code in a chunk will only print if you set `echo=T` either in the global options or in the code chunk itself.
 
+Please ensure that your text and R code are in the correct sections and use appropriate tags and formats.
 
 ## Specific Instructions
 
-This HW has **6 multi-part questions** related to **refreshers** and data **pre-processing**. Some question are worth **15 points** and some **20 points**. 
-
+This HW has **6 multi-part questions** related to **refreshers** and data **pre-processing**. Some question are worth **15 points** and some **20 points**.
 
 ## Prep Work
 
-- Load the {car} library
-- Load the Salaries data set in {car} using data(Salaries)
-- I suggest that you enter Enter `?Salaries` and review the data set information. **DON'T do this in the script**, but just in the R Console. In this and all subsequent HW and exercises, you should always inspect the data documentation and browse the data, so that you become familiarized.
-- This data were collected to monitor salary differences between male and female faculty members in U.S. colleges.
+-   Load the {car} library
+-   Load the Salaries data set in {car} using data(Salaries)
+-   I suggest that you enter Enter `?Salaries` and review the data set information. **DON'T do this in the script**, but just in the R Console. In this and all subsequent HW and exercises, you should always inspect the data documentation and browse the data, so that you become familiarized.
+-   This data were collected to monitor salary differences between male and female faculty members in U.S. colleges.
 
 ```{r}
 # Done for you
@@ -60,7 +57,6 @@ data(Salaries)
 # View(Salaries)
 ```
 
-
 ## 1. (15 pts.) Stats and Regression Refresher
 
 Before you do any heavy duty predictive analytis, it is always good to do some descriptive analytics and simple OLS models to develop some familiarity with the data and the reletionships among variables.
@@ -69,11 +65,9 @@ Before you do any heavy duty predictive analytis, it is always good to do some d
 
 ```{r}
 GGally::ggpairs(Salaries, upper=list(combo="box"))
-```   
+```
 
-1.2 Answer briefly: based on your review of the data, does it appear to be a salary gender gap? Why or why not? Identify on other promising predictor of salaries and briefly explain why is it promising.
-### Analysis
-Based on the review of the data, it appears that there is a salary gender gap. The boxplot for the `salary` variable shows that the median salary for females is lower than the median salary for males. Additionally, the scatterplot matrix shows that there is a positive correlation between `salary` and `rank`, which is a promising predictor of salaries. This is because higher-ranked professors tend to have higher salaries, and `rank` is a categorical variable with clear order.
+1.2 Answer briefly: based on your review of the data, does it appear to be a salary gender gap? Why or why not? Identify on other promising predictor of salaries and briefly explain why is it promising. \### Analysis Based on the review of the data, it appears that there is a salary gender gap. The boxplot for the `salary` variable shows that the median salary for females is lower than the median salary for males. Additionally, the scatterplot matrix shows that there is a positive correlation between `salary` and `rank`, which is a promising predictor of salaries. This is because higher-ranked professors tend to have higher salaries, and `rank` is a categorical variable with clear order.
 
 1.3 Fit an OLS regression model that predicts salaries using **ALL** variables as predictors and the results in an object named **fit.ols**. Use the `summary()` function to display the results.
 
@@ -84,7 +78,9 @@ summary(fit.ols) # view summary
 ```
 
 1.4 If your predictive modeling goal is **inference** and you are testing the null hypothesis that there is no gender pay gap, what is your conclusion based on the **ols.fit** results? 
-### Analysis
+
+### Analysis 
+
 Based on the results of the summary statistics of `fit.ols` and the p-value of the dummy variable `sexMale` is 0.215 which is greater than the level of significance (0.05), meaning that the variable is statistically insignificant to this model. This means according to this model, there is no gender pay gap.
 
 ## 2. (15 pts.) Heteroskedasticity and WLS
@@ -96,25 +92,38 @@ lmtest::bptest(fit.ols) # Breusch-Pagan Test
 ```
 
 2.2 Display the first residual plot for **fit.ols** by using `which=1`.
-   
+
 ```{r}
 plot(fit.ols, which = 1) # first residual plot
 ```
 
-2.3 Is there a problem with Heteroskedasticity? Why or why not? In your answer, please refer to **both**, the BP test and the residual plot.  
-### Analysis
-Yes, there is a problem with heteroscedasticity in the model. The Breusch-Pagan test resulted in a p-value of 4.205e-12 < 0.05, meaning that we reject the $H0$ that homoscedasticity is present in the model. The first residual plot shows a general cone shape distribution and an uneven distribution within the cone, confirming the presence of heteroscedasticity. 
+2.3 Is there a problem with Heteroskedasticity? Why or why not? In your answer, please refer to **both**, the BP test and the residual plot.\
+
+### Analysis 
+
+Yes, there is a problem with heteroscedasticity in the model. The Breusch-Pagan test resulted in a p-value of 4.205e-12 \< 0.05, meaning that we reject the $H0$ that homoscedasticity is present in the model. The first residual plot shows a general cone shape distribution and an uneven distribution within the cone, confirming the presence of heteroscedasticity.
 
 2.4 Fit a **WLS** model using residuals from the **fit.ols** model. Store this new model in an object named **fit.wls**. Display the `summary()` results fo your WLS model.
 
 **Technical Note:** As I mentioned in class, by far the most common error when fitting WLS models is this: `fit.wls=lm(fit.ols, data= ....)`. You cannot have an `lm()` fitted object inside an `lm()` function. It doesn't make sense to have an object created by a function inside the same function. Instead of using **fit.ols**, type in the regression formula, like you do in any `lm()` model. Alternatively, store the formula in a formula object like **lm.formula** and enter enter it instead of **fit.all**.
 
 ```{r}
+fit_abs_res <- abs(resid(fit.ols)) # calculate absolute residuals 
+fit_fitted <- fitted(fit.ols) # calculate fitted values
 
+fit_second_ols <- lm(fit_abs_res ~ fit_fitted) # fit second OLS model
+
+wts <- 1/fitted(fit_second_ols)^2 # calculate weights
+
+fit_wls <- lm(salary ~ ., data = Salaries, weights = wts) # fit WLS model
+summary(fit_wls) # view summary statistics
 ```
 
-2.5 Respond briefly: based on your WLS results, is there empirical evidence of gender salary inequality? Do you believe the WLS or the OLS model? Why?
+2.5 Respond briefly: based on your WLS results, is there empirical evidence of gender salary inequality? Do you believe the WLS or the OLS model? Why? 
 
+### Analysis 
+
+Based on the WLS results, there is no empirical evidence of gender salary inequality because the dummy variable `sexMale` is statistically insignificant to the model because p (0.103) \> 0.05 confidence level. I believe the WLS model because there are more significant variables after adding the weights, the Adjusted R-squared has increased from 0.4463 to 0.7144 (OLS and WLS, respectively), and the model p value (2.2e-16) \< 0.05 confidence level.
 
 ## 3. (15 pts.) Transformations: Categorical Data
 
@@ -123,78 +132,115 @@ Yes, there is a problem with heteroscedasticity in the model. The Breusch-Pagan 
 **Caution:** A common mistake is to re-fit this model in **3.1** below after re-leveling in **3.3**. If you use the `relevel()` function in **3.3** below and then come back to **3.1**, the data set will be already re-leveled, so you won't get the same results as the solution. If you knit the full R Markdown file, your results will be OK (because knitting starts from scratch), but if you run portions of the code, you may not get the correct results. For this part of the exercise, the refernce level should be the first one alphabetically, that is **Driver & Passenger**. If you don't get this, `relevel()` back to **Driver & Passenger** or click on the little broom on the right upper pane to clear your global environment and re-open your **MASS** library and the **Cars93** dataset fresh.
 
 ```{r}
+levels(Cars93$AirBags) # view the levels of AirBags variable
 
+lm.fit <- lm(Price ~ Type + MPG.city + AirBags + Origin, Cars93) # fit a linear regression model
+
+summary(lm.fit) # view summary statistics
 ```
 
-3.2 Provide a brief interpretation of the coefficient values and significance for the **AirBagsDriver only** and **AirBagsNone predictors**. In your answer, please identify the reference level Please remember to comment on the sign of the effect.
+3.2 Provide a brief interpretation of the coefficient values and significance for the **AirBagsDriver only** and **AirBagsNone predictors**. In your answer, please identify the reference level Please remember to comment on the sign of the effect. 
 
+### Analysis
 
+-   `AirBagDriver only`: $B$ = -4.3447, meaning on average, holding everything else constant, there will be a -4.3447 change in price in relation to `Driver & Passenger`, which is the reference level of the dummy variable for `AirBags`. The negative coefficient value means that when the dummy variable for `AirBagDriver only` = 1, the price decreases, meaning this characterstic is less valuable in terms of price when compared to the reference level. The variable is significant to the model because p (0.025) \< 0.05 confidence level. 
+
+-   `AirBagsNone`: $B$ = -8.9089, meaning on average, holding everything else constant, there will be a -4.3447 change in price in relation to `Driver & Passenger` (reference level). The negative coefficient value means that when the dummy variable for `AirBagsNone` = 1, the price decreases, meaning this characterstic is less valuable in terms of price when compared to the reference level. The variable is statistically significant to the model beacuse p (0.000590) \< 0.05 confidence level.
 
 3.3 Now, suppose that you want to compare prices of cars with air bags to those without airbags. Do this, please `relevel()` the **AirBags** factor variable so that the reference level is changed to **"None"**. Fit the regression model again after re-leveling the AirBags predictor. Store this re-leveled `lm()` object as **lm.fit.rlv**. Display the `summary()` results of this model.
 
 ```{r}
+Cars93$AirBags <- relevel(Cars93$AirBags, ref = "None") # relevel AirBags variable
 
+lm.fit.rlv <- lm(Price ~ Type + MPG.city + AirBags + Origin, Cars93) # fit new linear regression model
+
+summary(lm.fit.rlv) # view summary statistics
 ```
 
 3.4 Inspect the coefficients in the two models (before and after re-leveling) and answer briefly: What is the difference in interpretation for the effect of **AirBagsDrive only** between **lm.fit** and **lm.fit.rlv**? Did anything else change? Please explain briefly.
 
+### Analysis
 
+In the new model `lm.fit.rlv`, `AirBagsDrive only` had a $B$ change from -4.3447 to 4.5643 - meaning on average, everything else held constant, there is a price change of 4.5643 in relation to the reference level of `None`. This means that the characterstic associated with `AirBagsDrive only` increases the price in comparison to `None` (presumably that driver only air bags is more valuable than no airbags). The p values of the `AirBags` coefficients have changed since they are now being related to a new reference level - `AirBagsNone`. The rest of the model (p values, coefficients, Adjusted R-squared) all remain constant since the levels of the `AirBag` variable were only refactored and no data was added or removed from the overall model.
 
 ## 4. (20 pts.) Transformations: Log-Log Model
 
 4.1 Using the `read.table()` function, read the **Credit.csv** data set into a data frame named **credit**. Ensure that you use `header=T` and `sep=","`. We want to use this data to predict credit **Rating**. First, display a histogram and a QQ-Plot for the **Rating** variable. It should be pretty obvious from the histogram that this variable is (skewed) not normal, although the QQ-Plot is borderline.
 
 ```{r}
+credit <- read.table("Homework/Credit.csv.csv", header = T, sep = ",") # read data into data frame
 
+hist(credit$Rating) # plot histogram
+qqnorm(credit$Rating) # plot normal qq plot
 ```
 
 4.2 Even if the response variable were not normal, if the residual of the regression model is fairly normal, then it is OK to use the response variable without transformation. Let's explore that. Fit a model called **fit.linear** to predict **Rating**, using **Income, Age** and **Gender** as predictors. Display a `summary()` of the results. Then `plot()` the resulting **fit.linear model**, but display only the residual plot, using the **which=2** parameter.
 
 ```{r}
-
+fit.linear <- lm(Rating ~ Income + Age + Gender, credit) # fit a linear model
+summary (fit.linear) # view summary statistics
+plot(fit.linear, which = 2) # plot residuals
 ```
 
 4.3 The residuals look normally distributed in the center of the QQ-Plot and wagging some at the tails. Let's fit a couple of log models to see if we can improve upon the linear model. Please fit both, a **log-linear model** (loging only the response variable **Rating**) and a **log-log** (loging only the response variable **Rating** and and the predictor **Income**). Store the results of the first model in an object named **fit.log.linear** and the second one in an object named **fit.log.log**. Display the `summary()` for both models.
 
 ```{r}
+fit.log.linear <- lm(log(Rating) ~ Income + Age + Gender, credit) # fit a log-linear model
+fit.log.log <- lm(log(Rating) ~ log(Income) + Age + Gender, credit) # fit a log-log model
 
+summary(fit.log.linear) # view summary statistics
+summary(fit.log.log) # view summary statistics
 ```
 
 4.4 Please provide a quick interpretation of the Income or log(Income) coefficient for each of the **three models** fitted above.
 
+### Analysis
 
+The income $B$ for `fit.linear` is the greatest (3.5034), meaning that `Income` has the greatest effect on `Rating` in this model. In `fit.log.linear`, the `Income` $B$ is drastically reduced (0.00884), meaning that `Income` has a very minor effect on `log(Rating)` in this model. In `fit.log.log` the `log(Income)` $B$ has increased to .4389, meaning there is a positive relationship between `log(Income)` and `log(Rating)`.
 
 4.5 Using the **Adjusted R-Square** as a guide, which of the three models is the best (please note that you **cannot** compare the 3 models with ANOVA because they are not nested)
 
+### Analysis
 
-
+The `fit.linear` model is the best because it has the highest Adjusted R-squared value of 0.6251. `fit.log.linear` and `fit.log.log` have Adjusted R-squared values of 0.4614 and 0.4387, respectively, meaning they explain less variation in the response variable.
 
 ## 5. (15 pts.) Transformations: Standardization
 
 5.1 Using the **Cars93{MASS}** data set, fit a model to predict a car's **price** as a function of the car's **type, city miles per gallon, air bags** and **origin**. Store the results in an object named **fit.unstd** and display the `summary()` results for this linear model object.
 
 ```{r}
-
+colnames(Cars93)
+fit.unstd <- lm(Price ~ Type + MPG.city + AirBags + Origin, Cars93) # fit a linear model
+summary(fit.unstd) # view summary
 ```
 
 5.2 Then, using the **lm.beta(){lm.beta}** function, extract and the standardized regression coefficients for this model and display the results. Store the results in an object named **lm.std** and display its `summary()`.
 
 ```{r}
-
+lm.beta::lm.beta(fit.unstd) -> lm.std
+summary(lm.std)
 ```
 
 5.3 Answer briefly: what is the difference between the unstandardized and standardized regression results? Why would you use standardized variables or coefficients?
 
+### Analysis
+
+- Unstandardized: coefficients reflect the change in the response variable for a one unit change in predictor variables, holding all other variables constant
+- Standardized: variables are transformed to have a $mu$ = 0 and $sd$ = 1. Coefficients now represent the change in the response variable in units of standard deviation for a single standard deviation change in the predictor variables, allowing for easier strength of relationship comparison.
+
+Using standardized variables makes it easier to interpret the strenght of realtionships across variables and makes interpreting variables with different scales easier.
 
 
 5.4 Answer briefly: is it OK to standardize binary or categorical variables like "Type" or "AirBags"? How would you get around this issue?
 
+### Analysis
 
+It's generally unacceptable to standardize binary or categorical variables because they are not continuous variables, rather discrete categories. Leaving categorical or binary variables as is for analysis or using dummy variables are two ways to get around the issue.
 
 
 ## 6. (20 pts.) Transformations: Lagged Variables and Serial Correlation
 
-Somtimes data sets contain more complex data structures within them. This is the case with the **economics** data set contained in the **{ggplot2}** library, which we will use for this exercise. Unfortunately, there is a small glitch in this dataset (it has a data frame inside one of the columns), which causes the <span style="color:red">**slide() function to give an error**</span>. Fortunately, there is a simple fix for this by just re-creating the data frame. I have done this for you already in the script. 
+Somtimes data sets contain more complex data structures within them. This is the case with the **economics** data set contained in the **{ggplot2}** library, which we will use for this exercise. Unfortunately, there is a small glitch in this dataset (it has a data frame inside one of the columns), which causes the [**slide() function to give an error**]{style="color:red"}. Fortunately, there is a simple fix for this by just re-creating the data frame. I have done this for you already in the script.
 
 ```{r}
 # Done for you
@@ -205,7 +251,7 @@ economics = as.data.frame(economics) # To fix the dataset glitch
 
 Now, from the **R Console** (NOT in the script), enter `?economics` to view the explanation of the variables in the data set. Familiarize yourself with the variables and their units, so that you can interpret results correctly. You will be developing a predictive model for **unemployment**.
 
-6.1 First, use `options(scipen=4)` to limit the display of scientific notation. Then fit a linear model to predict umemployment (**unemploy**) as a function of  date (**date**), personal consumption expenditures (**pce**), duration of unemployment (**uempmed**), personal savings (**psavert**), and total population (**pop**). Name this model **fit.no.lag**. Display the `summary()` result for the resulting linear model. 
+6.1 First, use `options(scipen=4)` to limit the display of scientific notation. Then fit a linear model to predict umemployment (**unemploy**) as a function of date (**date**), personal consumption expenditures (**pce**), duration of unemployment (**uempmed**), personal savings (**psavert**), and total population (**pop**). Name this model **fit.no.lag**. Display the `summary()` result for the resulting linear model.
 
 ```{r}
 
@@ -215,9 +261,6 @@ Now, from the **R Console** (NOT in the script), enter `?economics` to view the 
 
 Then, briefly comment if you suspect serial correlation and why (1 or 2 lines), based on what you see on this plot.
 
-
-
-
 6.3 Now load the **{lmtest}** library and run a Durbin-Wastson test to confirm or not that the model suffers from serial correlation.
 
 ```{r}
@@ -225,9 +268,6 @@ Then, briefly comment if you suspect serial correlation and why (1 or 2 lines), 
 ```
 
 Then, briefly comment if the DW test confirms or not the presence of serial correlation, whether it is positive or negative and why or why not.
-
-
-
 
 6.4 Regardless of your answer above, go ahead and correct for serial correlation. My intuition tells me that unemployment in the previous month is a strong predictor of the unemployment this month. Also, I suspect that the unemployment on the same month a year ago may also influence unemployment this month.
 
@@ -239,7 +279,7 @@ Also, display all columns of the first **15 rows (only)** of the **date** and al
 
 ```
 
-6.5 Fit the same linear model above, but add the predictors **unemploy.L1** and **unemploy.L12**. Store the resulst of this model in an object named **fit.lag**  Display the linear model `summary()` results. 
+6.5 Fit the same linear model above, but add the predictors **unemploy.L1** and **unemploy.L12**. Store the resulst of this model in an object named **fit.lag** Display the linear model `summary()` results.
 
 Then test this model for serial correlation with a **Durbin-Watson** test.
 
@@ -249,11 +289,4 @@ Then test this model for serial correlation with a **Durbin-Watson** test.
 
 6.6 Was serial correlation corrected with the lagged model? Why or why not?
 
-
-
-
 6.7 Run `?economics` in the console and take note of the description and units of all variables in this dataset. Then briefly discuss the difference in significant predictors (only) between the **fit.no.lag** and **fit.lag** models. Then provide a well-articulated interpretation of the coefficients of the 2 lagged variables in **fit.lag**.
-
-
-
-
