@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(echo=F, include=T, warning=F, message=F)
+knitr::opts_chunk$set(echo=T, include=T, warning=F, message=F)
 ```
 
 ## Preparation 
