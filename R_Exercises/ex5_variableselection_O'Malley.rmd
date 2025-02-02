@@ -1,8 +1,8 @@
 ---
 title: "Exercise 5 - Variable Selection"
 subtitle: "Multicollinearity and Variable Selection"
-author: "Enter your name here"
-date: "Enter your exercise date here"
+author: "O'Malley, Conie"
+date: "`r Sys.date()`"
 output: 
   word_document:
      toc: true
@@ -35,7 +35,7 @@ This dataset contains nutrition data on a sample of 300 slices of frozen pizza (
 ```{r prep}
 # Done for you, but please ensure your data set has the columns listed below
 
-pizza <- read.table("PizzaCal.csv", header=TRUE, sep=",")[,3:10]
+pizza <- read.table("R_Exercises/PizzaCal.csv", header=TRUE, sep=",")[,3:10]
 ```
 
 ## 2. OLS
@@ -43,7 +43,8 @@ pizza <- read.table("PizzaCal.csv", header=TRUE, sep=",")[,3:10]
 2.1 Fit an OLS model to predict **cal** with all other variables as predictors. Store the results in an object named **fit.full**. Display the `summary()` results for this model.
 
 ```{r} 
-
+fit.full <- lm(cal ~ ., pizza) # fit an OLS model
+summary(fit.full) # view summary statistics
 ```
 
 ## 3. Multicollinearity Testing
@@ -53,16 +54,27 @@ pizza <- read.table("PizzaCal.csv", header=TRUE, sep=",")[,3:10]
 **Technical Note:** `scale=T` standardizes the predictors before the CI computation. In essence, it causes the CI to be based on the correlation matrix rather than the covariance matrix, which is important when variables are in different scales. The default value or `scale` is `T`, so if you omit it, it still works fine. `center=T` causes all the variables to be centered at their means. This forces the regression line to go through the origin without intercept. This is important to avoid high correlation between predictors and the intercept to influence the CI calculation. The default for `center` is `F`, so it is important to change this to `T`. You can also add the parameter `add.intercept=F` to force the regression line to go through the origing, but when you set `center=T` it is not necessary.
 
 ```{r} 
+library(perturb)
+library(car)
 
+cond_indx <- colldiag(fit.full, scale = TRUE, center = TRUE)
+cond_indx
+
+vif(fit.full)
 ```
 
 3.2 Interpretation. Are there problems with multi-collinearity? Please briefly explain in 1 or 2 lines why or why not.
 
+#### Analysis
 
+Yes there is a problem with multicollinearity. The `Condition Index` of the model is 645.742 which is much greater than the threshold of 50 and all predictors have `Variance Inflation Factors` > 10, which is the threshold for individual `VIF`s. This suggests that all predictor variables are correlated.
 
 
 3.3 Suggestions. Do you have any suggestions on how to resolve the multicollinearity issue? Provide one sound suggestion
 
+#### Suggestion
+
+Perform a stepwise regression to remove variables that are highly correlated.
 
 
 
@@ -75,7 +87,11 @@ pizza <- read.table("PizzaCal.csv", header=TRUE, sep=",")[,3:10]
 Save the resulting `step()` object with the name **fit.step.15**. Then display it using the `summary()` function.
 
 ```{r}
+fit.null <- lm(cal ~ 1, pizza) # fit a null model
+step(fit.full, scope = list(lower = fit.null, upper = fit.full), # stepwise regression
+    direction = "both", test = "F") -> fit.step.15
 
+summary(fit.step.15)
 ```
 
 **Technical Note:** which p-value to use to include and remove variables? A larger p-value will yield more predictors in the model, whereas a smaller p-value will be more restrictive and only retain highly significant predictors. You can control this with a parameter **k**. k is the chi-square equivalent to the p-value. The default in `step()` is k=2, which is equivalent to p<0.15. 
@@ -83,12 +99,21 @@ Save the resulting `step()` object with the name **fit.step.15**. Then display i
 4.2 To use p<0.05 as the variable inclusion/removal criteria, `use qchisq(0.05, 1, lower.tail=F)` to find the **k** value corresponding to p<0.05. Save this result in a variable named **kval** and display its result. You should get k=3.84. Then either add at the end of the `scope()` function the parameter `k=3.84`, or better yet, use `k=kval`. And re-fit **fit.step** but this time save the model as **fit.step.05**
 
 ```{r}
+kval <- qchisq(0.05, 1, lower.tail = FALSE) # assign new chi square value to variable object
+kval
 
+fit.step.05 <- step(fit.full, scope = list(lower = fit.null, upper = fit.full),
+                    direction = "both", test = "F", k = kval) # stepwise regression
+
+summary(fit.step.05)
+summary(fit.step.15)
 ```
 
 4.3 Answer briefly: what is the difference in the final model when using p<0.05 rather than p<0.15 as the inclusion/removal criterion?
 
+#### Analysis
 
+The final model is a further reduced model when $p < 0.05$ because the confidence level for the `F-test` is reduced. As we see the variables `prot` and `carb` were significant at a $p < 0.15$ level, but no longer at a $p < 0.05$ level.
 
 
 ## 5. Re-testing for Multicollinearity Testing
@@ -96,9 +121,17 @@ Save the resulting `step()` object with the name **fit.step.15**. Then display i
 5.1 Now that we have 2 reduced models identified by **stepwise** regression, compute the CI (`colldiag()`) and VIF for both models. For `colldiag()` use `scale=T, center=T`.
 
 ```{r}
+col_indx_15 <- colldiag(fit.step.15, scale = TRUE, center = TRUE) # CI for reduced model 1
+col_indx_15
+vif(fit.step.15) # VIFs for reduced model 1
 
+col_indx_05 <- colldiag(fit.step.05, scale = TRUE, center = TRUE) # CI for reduced model 2
+col_indx_05
+vif(fit.step.05) # VIFs for reduced model 2
 ```
 
 5.2 What is your general conclusion from this analysis? Which model specification would you select?
 
+#### Analysis
 
+The variables in `fit.step.15` are still highly correlated. The `Condition Index` = 594.374 and `VIF` > 320 for all variables - both well outside of acceptable ranges suggesting high multicollinearity. I would select the second reduced model `fit.step.05` because the `Condition Index` = 4.202 is well below the threshold of 50 and all `VIF`s < 10 - suggesting that multicollinearity has been addressed. 

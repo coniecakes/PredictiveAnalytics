@@ -20,6 +20,18 @@
       ],
       "Hash": "065ae649b05f1ff66bb0c793107508f5"
     },
+    "DataCombine": {
+      "Package": "DataCombine",
+      "Version": "0.2.21",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "data.table",
+        "dplyr"
+      ],
+      "Hash": "f5f182ea31799e8204781ef7e7f78fed"
+    },
     "Deriv": {
       "Package": "Deriv",
       "Version": "4.1.3",
