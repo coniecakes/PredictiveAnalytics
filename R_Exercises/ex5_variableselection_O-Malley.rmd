@@ -2,7 +2,7 @@
 title: "Exercise 5 - Variable Selection"
 subtitle: "Multicollinearity and Variable Selection"
 author: "O'Malley, Conie"
-date: "`r Sys.date()`"
+date: "`r Sys.Date()`"
 output: 
   word_document:
      toc: true
@@ -34,8 +34,7 @@ This dataset contains nutrition data on a sample of 300 slices of frozen pizza (
 
 ```{r prep}
 # Done for you, but please ensure your data set has the columns listed below
-
-pizza <- read.table("R_Exercises/PizzaCal.csv", header=TRUE, sep=",")[,3:10]
+pizza <- read.table("/Users/coniecakes/Library/CloudStorage/OneDrive-Personal/001. Documents - Main/023. Programming Tools/R Studio/PredictiveAnalytics/R_Exercises/PizzaCal.csv", header=TRUE, sep=",")[,3:10]
 ```
 
 ## 2. OLS
