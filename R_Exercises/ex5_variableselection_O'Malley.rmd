@@ -1,0 +1,104 @@
+---
+title: "Exercise 5 - Variable Selection"
+subtitle: "Multicollinearity and Variable Selection"
+author: "Enter your name here"
+date: "Enter your exercise date here"
+output: 
+  word_document:
+     toc: true
+     toc_depth: 2
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=F, include=T, warning=F, message=F)
+```
+
+## Preparation 
+
+Download the **Ex4_YourLastName.Rmd** R Markdown file to your working directory, rename with your last name and follow the instructions below. When you finish, upload onto Blackboard the .Rmd file or the knitted file as a Word or PDF file.
+
+## 1. Read the Data
+
+1.1 Use the **read.table()** function to retrieve columns **3 to 10** from this data set from Blackboard and store it in your R working folder for this class: **PizzaCal.csv **. Name your dataset **pizza**.
+
+This dataset contains nutrition data on a sample of 300 slices of frozen pizza (100 grams each):
+
+- **import**: binary variable, 0 if domestic, 1 if imported
+- **cal**: number of calories in the slice
+- **mois**: moisture content (grams per slice)
+- **prot**: amount of protein (grams per slice)
+- **fat**: fat content (grams per slice)
+- **ash**: ash content (grams per slice)
+- **sodium**: amount of sodium (grams per slice)
+- **carb**: amount of carbohydrates (grams per slice)
+
+```{r prep}
+# Done for you, but please ensure your data set has the columns listed below
+
+pizza <- read.table("PizzaCal.csv", header=TRUE, sep=",")[,3:10]
+```
+
+## 2. OLS
+
+2.1 Fit an OLS model to predict **cal** with all other variables as predictors. Store the results in an object named **fit.full**. Display the `summary()` results for this model.
+
+```{r} 
+
+```
+
+## 3. Multicollinearity Testing
+
+3.1 First, load the {perturb} (for CI) and {car} (for VIF's) libraryies. Obtain the **Condition Index (CI)** for this model using the `colldiag()` function. For now, use the raw predictors with attributes `scale=T, center=T` to get the same results I got. Also, obtain the **Variance Inflation Factors (VIFs)** for the predictors in the model, using the `vif()` function. 
+
+**Technical Note:** `scale=T` standardizes the predictors before the CI computation. In essence, it causes the CI to be based on the correlation matrix rather than the covariance matrix, which is important when variables are in different scales. The default value or `scale` is `T`, so if you omit it, it still works fine. `center=T` causes all the variables to be centered at their means. This forces the regression line to go through the origin without intercept. This is important to avoid high correlation between predictors and the intercept to influence the CI calculation. The default for `center` is `F`, so it is important to change this to `T`. You can also add the parameter `add.intercept=F` to force the regression line to go through the origing, but when you set `center=T` it is not necessary.
+
+```{r} 
+
+```
+
+3.2 Interpretation. Are there problems with multi-collinearity? Please briefly explain in 1 or 2 lines why or why not.
+
+
+
+
+3.3 Suggestions. Do you have any suggestions on how to resolve the multicollinearity issue? Provide one sound suggestion
+
+
+
+
+## 4. Stepwise Variable Selection
+
+4.1 Fit the **null** model and name it **fit.null**. Then run a **stepwise** variable selection process in a **backwards** fashion, between **fit.full** and **fit.null**. So, **fit.full** should be your first argument in the `step()` function. Then, we want the `scope` parameter of the stepwise process to go from `lower=fit.null` to `upper=fit.full`. We also want the `direction=both` to proceed in a **stepwise** fashion. 
+
+**Technical Note:** the default test in `step()` is the **AIC**. But it is better to use a standard statistical test like the **F-test**, which is what we do with `anova()`. To change the default test to an **F-Test** (which uses a p<0.15 as the default criterion to add and remove variables), add the `test="F"` attribute. In sum, your `scope()` function should look like this: `scope=list(lower=fit.null, upper=fit.full), direction="both", test="F"`.
+
+Save the resulting `step()` object with the name **fit.step.15**. Then display it using the `summary()` function.
+
+```{r}
+
+```
+
+**Technical Note:** which p-value to use to include and remove variables? A larger p-value will yield more predictors in the model, whereas a smaller p-value will be more restrictive and only retain highly significant predictors. You can control this with a parameter **k**. k is the chi-square equivalent to the p-value. The default in `step()` is k=2, which is equivalent to p<0.15. 
+
+4.2 To use p<0.05 as the variable inclusion/removal criteria, `use qchisq(0.05, 1, lower.tail=F)` to find the **k** value corresponding to p<0.05. Save this result in a variable named **kval** and display its result. You should get k=3.84. Then either add at the end of the `scope()` function the parameter `k=3.84`, or better yet, use `k=kval`. And re-fit **fit.step** but this time save the model as **fit.step.05**
+
+```{r}
+
+```
+
+4.3 Answer briefly: what is the difference in the final model when using p<0.05 rather than p<0.15 as the inclusion/removal criterion?
+
+
+
+
+## 5. Re-testing for Multicollinearity Testing
+
+5.1 Now that we have 2 reduced models identified by **stepwise** regression, compute the CI (`colldiag()`) and VIF for both models. For `colldiag()` use `scale=T, center=T`.
+
+```{r}
+
+```
+
+5.2 What is your general conclusion from this analysis? Which model specification would you select?
+
+
