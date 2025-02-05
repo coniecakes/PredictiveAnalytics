@@ -9,9 +9,7 @@
 #
 #
 #
-#
-knitr::opts_chunk$set(echo=F, include=T, warning=F, message=F)
-#
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 #
 #
 #
@@ -21,7 +19,7 @@ knitr::opts_chunk$set(echo=F, include=T, warning=F, message=F)
 #
 #
 #
-#
+RNGkind(sample.kind="default")
 #
 #
 #
@@ -33,33 +31,91 @@ knitr::opts_chunk$set(echo=F, include=T, warning=F, message=F)
 #
 #
 #
-# Done for you, but please ensure your data set has the columns listed below
-pizza <- read.table("/Users/coniecakes/Library/CloudStorage/OneDrive-Personal/001. Documents - Main/023. Programming Tools/R Studio/PredictiveAnalytics/R_Exercises/PizzaCal.csv", header=TRUE, sep=",")[,3:10]
-#
-#
-#
-#
-#
-#
-#
-fit.full <- lm(cal ~ ., pizza) # fit an OLS model
-summary(fit.full) # view summary statistics
-#
-#
-#
-#
-#
-#
-#
-#
-#
-library(perturb)
-library(car)
+set.seed(1) # set  the random seed for CV reproducability 
+nrow(Boston) # get the number of rows in the Boston dataset
+train <- sample(1:nrow(Boston), 0.7 * nrow(Boston)) # create training data vector
+train # display the training vector
 
-cond_indx <- colldiag(fit.full, scale = TRUE, center = TRUE)
-cond_indx
+#
+#
+#
+#
+#
+#
+#
+Boston.train <- Boston[train,] # subset the training data
+nrow(Boston.train) # count rows of train subsample
+Boston.test <- Boston[-train,] # subset the test data 
+nrow(Boston.test) # count rows of test subsample
+#
+#
+#
+#
+#
+#
+#
+# fit a linear model
+fit.train <- lm(medv ~ crim + chas + rm + age + tax + ptratio + lstat, Boston.train)
+summary(fit.train) # view summary statistics of fit
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+test.mse.rs <- mean((Boston.test$medv - predict(fit.train, Boston.test))^2) # calculate RMSE
+c("RSCV Test MSE" = test.mse.rs, "RSCV Test RMSE" = sqrt(test.mse.rs)) # concatenate results
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# fit a glm model
+glm.fit <- glm(medv ~ crim + chas + rm + age + tax + ptratio + lstat, data = Boston)
+summary(glm.fit) # view summary statistics
+#
+#
+#
+#
+#
+#
+#
+test.mse.loo <- boot::cv.glm(Boston, glm.fit)$delta[1] # fit a CV glm
+# display LOOCV test mse and rmse
+c("LOOCV Test MSE" = test.mse.loo, "LOOCV Test RMSE" = sqrt(test.mse.loo))
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 
-vif(fit.full)
+test.mse.10f <- boot::cv.glm(Boston, glm.fit, K = 10$delta[1] # fit a CV glm
+# display 10FCV test mse and rmse
+c("10FCV Test MSE" = test.mse.10f, "10FCV Test RMSE" = sqrt(test.mse.10f))
+)
 #
 #
 #
@@ -67,66 +123,7 @@ vif(fit.full)
 #
 #
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-fit.null <- lm(cal ~ 1, pizza) # fit a null model
-step(fit.full, scope = list(lower = fit.null, upper = fit.full), # stepwise regression
-    direction = "both", test = "F") -> fit.step.15
 
-summary(fit.step.15)
-#
-#
-#
-#
-#
-#
-#
-kval <- qchisq(0.05, 1, lower.tail = FALSE) # assign new chi square value to variable object
-kval
-
-fit.step.05 <- step(fit.full, scope = list(lower = fit.null, upper = fit.full),
-                    direction = "both", test = "F", k = kval) # stepwise regression
-
-summary(fit.step.05)
-summary(fit.step.15)
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-col_indx_15 <- colldiag(fit.step.15, scale = TRUE, center = TRUE) # CI for reduced model 1
-col_indx_15
-vif(fit.step.15) # VIFs for reduced model 1
-
-col_indx_05 <- colldiag(fit.step.05, scale = TRUE, center = TRUE) # CI for reduced model 2
-col_indx_05
-vif(fit.step.05) # VIFs for reduced model 2
 #
 #
 #

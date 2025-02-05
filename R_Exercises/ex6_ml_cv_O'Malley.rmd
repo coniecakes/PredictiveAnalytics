@@ -1,0 +1,139 @@
+---
+title: "Exercise 6 - Machine Learning and Cross Validation"
+author: "O'Malley, Conie"
+date: "`r Sys.Date()`"
+output: 
+  word_document:
+     toc: true
+     toc_depth: 2
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+```
+
+## Submission: 
+
+Download the **Ex6_ML&CV_YourLastName.Rmd** R Markdown file and save it with **your own last name**. Note, it is important that you conform to this file naming convention, otherwise it will affect the sorting of assignments for us. Please name your file as instructed and complete all your work in that template file, **Knit** the corresponding Word or PDF file. Your knitted file **MUST display your R commands**. In order to do this, please ensure that the `knittr::` global option command above has `echo=T`.
+
+**Important Technical Note:** R discovered problems with the `sample()` function, caused by some inconsistencies in the `set.seed()` **random number generator (RNG)**. They corrected this with R version 3.6.0. However, your results may be different than mine, depending on what is the default RNG in your R installation. The differences are usually due to rounding differences in randomly generated values. If you are working on your own project, this doesn't affect you because your own results will be consistent. But for your results to match mine, we all need to set the RNG to the same default. Still, your numbers may not exactly match mine and that is OK, as long as they are not radically different. But let's all set the same RNG default this way: 
+
+```{r}
+RNGkind(sample.kind="default")
+```
+
+## 1. Random Splitting (Holdout Sample) Cross Validation (RSCV)
+
+**1.1 Train Vector.** 
+
+Load the **{MASS}** library, which contains the **Boston** Boston dataset. Run `?Boston` from the console (not in the script) and inspect its variables. 
+
+Then use `set.seed(1)` so that you get the same results if you run your cross validation commands multiple times. Display the number of rows in the **Boston** dataset using the `nrow()` function. Then use the `sample()` and `nrow()` functions to create an index vector called **train** which you will later use to split the data set into **70%** train subsample. Then display the train vector.
+
+```{r}
+set.seed(1) # set  the random seed for CV reproducability 
+nrow(Boston) # get the number of rows in the Boston dataset
+train <- sample(1:nrow(Boston), 0.7 * nrow(Boston)) # create training data vector
+train # display the training vector
+
+```
+
+**1.2 Train and Test Subsamples.** 
+
+Then create a train subsample using the train **vector** above as the index and all columns (i.e., `Boston[train,]`. Name this subsample **Boston.train**. Just to be certain, count and display the number of rows of Boston.train. Then create a subsample named **Boston.test** using the remaining observations, and also count and display the number of rows.
+
+```{r}
+Boston.train <- Boston[train,] # subset the training data
+nrow(Boston.train) # count rows of train subsample
+Boston.test <- Boston[-train,] # subset the test data 
+nrow(Boston.test) # count rows of test subsample
+```
+
+**1.3 Train the Model.** 
+
+Fit a linear model to predict the median value of houses in Boston counties **medv** using the **train subsample**. Use `crim+chas+rm+age+tax+ptratio+lstat` as predictors. Store your resulting model in an object named **fit.train** and display the `summary()` results. Quick note: the dataset Boston is capitalized and the response variable salary is not, so be sure to spell them accordingly.
+
+```{r}
+# fit a linear model
+fit.train <- lm(medv ~ crim + chas + rm + age + tax + ptratio + lstat, Boston.train)
+summary(fit.train) # view summary statistics of fit
+```
+
+**1.4 Test MSE and RMSE**
+
+Compute the **Random Split Cross-Validation Test MSE** using **fit.train** as the prediction model and **Boston.test** as the test subset. Store the resulting MSE in an object named **test.mse.rs** and display the result.
+
+Tip: the best thing is to build the **test.mse.rs** formula in steps. First type `Boston.test$medv`, which is a vector with the actual **medv** values from the test subsample. Then subtract the results from `predict()` using **fit.train** as the prediction model and **Boston test** as the prediction test subset. This subtraction will yield a vector with all the prediction errors. You can view it the results in the console (not in the script). You can then square the results, which will yield a vector with all the squared errors. Then, take the `mean()` of all that to get the **test.mse.rs**.
+
+Once you have calculated the **test.mse** use the `c()` function to display a vector with the **test.mse.rs** and the `sqrt(test.mse.rs)`. Label the two vector elements **"RSCV Test MSE"** and **"RSCV Test RMSE"**.
+
+```{r}
+test.mse.rs <- mean((Boston.test$medv - predict(fit.train, Boston.test))^2) # calculate RMSE
+c("RSCV Test MSE" = test.mse.rs, "RSCV Test RMSE" = sqrt(test.mse.rs)) # concatenate results
+```
+
+**1.5 Discussion.** 
+
+Briefly comment on these results. The Test MSE is difficult to interpret, which is why we computed the Test RMSE. In one sentence, what does the Test RMSE result tell you?
+
+#### Analysis
+
+The RMSE in this context indicates that on average, our model's predictions are off by approximately $4,500 when compared to the actual median value of homes in the Boston dataset. This suggests that while the model is reasonably accurate, there may still be room for improvement in terms of capturing the nuances and complexities of the data.
+
+
+## 2. Leave One Out Cross-Validation (LOOCV)
+
+**2.1  Fit GLM Model.** 
+
+Using the **Boston** data set, fit a **GLM** model to predict **medv** using `crim+chas+rm+age+tax+ptratio+lstat` as predictors. Display the summary results. Store the results in an object named **glm.fit**. Tip: when you use the `glm()` function you need to specify the family and the link function. In this case, however, you are fitting an OLS model with the `glm()` function. As we discussed earlier in the semester, Since **gaussian** is the default distribution, you don't need to specify a familty or a link. Just specify the model as if you were using the `lm()` function and the result will be an OLS model.Then display the `summary()` of the **glm.fit** model.
+
+```{r}
+# fit a glm model
+glm.fit <- glm(medv ~ crim + chas + rm + age + tax + ptratio + lstat, data = Boston)
+summary(glm.fit) # view summary statistics
+```
+
+**2.2 Leave On Out (LOOCV)**
+
+Load the **{boot}** library and use the `cv.glm()` function and the **glm.fit** object above to compute  the **LOOCV MSE** (Leave One Out) for this model (the first element `$delta[1]`) contains the raw MSE. Store the result in an object named **test.mse.loo**. Then, as you did above, use the `c()` function to display a vector with the **test.mse.loo** and the `sqrt(test.mse.loo)`. Label the two vector elements "LOOCV Test MSE" and "LOOCV Test RMSE".
+
+```{r}
+test.mse.loo <- boot::cv.glm(Boston, glm.fit)$delta[1] # fit a CV glm
+# display LOOCV test mse and rmse
+c("LOOCV Test MSE" = test.mse.loo, "LOOCV Test RMSE" = sqrt(test.mse.loo))
+```
+
+
+## 3. K-Fold Validation (KFCV)
+
+**3.1 10-Fold Validation (10FCV)**
+
+Using the same **cv.glm()** function and **glm.fit** model object, compute and display the **10-Fold** cross validation MSE for this model. Store the result in an object named **test.mse.10f**. Then, as you did above, use the `c()` function to display a vector with the **test.mse.10f** and the `sqrt(test.mse.10f)`. Label the two vector elements "10FCV Test MSE" and "10FCV Test RMSE"
+
+```{r}
+test.mse.10f <- boot::cv.glm(Boston, glm.fit, K = 10)$delta[1] # fit a CV glm
+# display 10FCV test mse and rmse
+c("10FCV Test MSE" = test.mse.10f, "10FCV Test RMSE" = sqrt(test.mse.10f))
+```
+
+**3.2 Compare Results**  
+
+Display a table (data frame) that shows the Test MSE and Test RMSE in two columns for each of the 3 cross-validation methods. Refer to the table in the solution below and use these functions: `cbind()` to bind the respective table columns together; and `rbind()` to bind the rows. Store the resulting dataframe as **mse.all**. Then use `colnames()` to give labels to the columns of **mse.all** (use `c()` to create a vector with the respective column names); and `rownames()` to give labels to the rows (use `c()` to create a vector with the respective row names). Use the column and row labels shown in the output below. Then display **mse.all**.
+
+```{r}
+# create a data frame of results
+mse.all <- rbind(cbind(test.mse.rs, sqrt(test.mse.rs)), 
+                cbind(test.mse.loo, sqrt(test.mse.loo)), 
+                cbind(test.mse.10f, sqrt(test.mse.10f)))
+rownames(mse.all) <- c("RSCV", "LOOCV", "10FCV") # change row names
+colnames(mse.all) <- c("MSE", "RMSE") # change column names
+mse.all
+```
+
+**2.5 Commentary**. 
+
+Provide a brief commentary of the results above. Is there a meaning to the difference between these 3 MSE Cross-Validation result? Briefly explain
+
+#### Analysis
+
+The differences in the Mean Squared Error (MSE) and Root Mean Squared Error (RMSE) across different cross-validation methods (RSCV, LOOCV, 10FCV) can be interpreted as follows: RSCV provides a balance between bias and variance, while LOOCV tends to overfit the model due to its high number of folds. On the other hand, 10FCV strikes a compromise by using a moderate number of folds, providing a good trade-off between computational efficiency and model performance. The lower MSE and RMSE values indicate that the models have performed well in terms of prediction accuracy across all cross-validation methods. All things considered, the models are very similar with a minimal difference in RMSE amongst them (~5% difference).
