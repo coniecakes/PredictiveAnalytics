@@ -31,6 +31,7 @@ Load the **{MASS}** library, which contains the **Boston** Boston dataset. Run `
 Then use `set.seed(1)` so that you get the same results if you run your cross validation commands multiple times. Display the number of rows in the **Boston** dataset using the `nrow()` function. Then use the `sample()` and `nrow()` functions to create an index vector called **train** which you will later use to split the data set into **70%** train subsample. Then display the train vector.
 
 ```{r}
+library(MASS)
 set.seed(1) # set  the random seed for CV reproducability 
 nrow(Boston) # get the number of rows in the Boston dataset
 train <- sample(1:nrow(Boston), 0.7 * nrow(Boston)) # create training data vector
