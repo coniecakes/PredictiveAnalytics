@@ -40,7 +40,7 @@ train # display the training vector
 
 **1.2 Train and Test Subsamples.** 
 
-Then create a train subsample using the train **vector** above as the index and all columns (i.e., `Boston[train,]`. Name this subsample **Boston.train**. Just to be certain, count and display the number of rows of Boston.train. Then create a subsample named **Boston.test** using the remaining observations, and also count and display the number of rows.
+Then create a train subsample using the train **vector** above as the index and all columns (i.e., `Boston[train,]`). Name this subsample **Boston.train**. Just to be certain, count and display the number of rows of Boston.train. Then create a subsample named **Boston.test** using the remaining observations, and also count and display the number of rows.
 
 ```{r}
 Boston.train <- Boston[train,] # subset the training data
