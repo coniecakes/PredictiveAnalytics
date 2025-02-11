@@ -1,8 +1,8 @@
 ---
 title: "Exercise 7 - Dimensionality"
 subtitle: "Ridge, LASSO, PCR and PLS"
-author: "Place your last name here"
-date: "Place your exercise date here"
+author: "O'Malley, Conie"
+date: "`r Sys.Date()"
 output: 
   word_document:
      toc: true
@@ -37,7 +37,7 @@ Let's start by loading the `glmnet()` package, reading the data and creating the
 options(scipen=4)
 
 library(glmnet) # Contains functions for Ridge and LASSO
-heart <- read.table("Heart.csv", sep=",", head=T)
+heart <- read.table("/Users/coniecakes/Library/CloudStorage/OneDrive-Personal/001. Documents - Main/023. Programming Tools/R Studio/PredictiveAnalytics/R_Exercises/data/Heart.csv", sep=",", head=T)
 
 x=model.matrix(chd~.,data=heart)[,-1]
 y=heart$chd
@@ -50,7 +50,8 @@ Fit the Ridge model with x and y, using the attribute `family="binomial"`. Name 
 Technical note: when we fit logit models with `glm()` we use `family=binomial(link="logit")`, but the `glmnet()` function is different and only requires `family="binomial"`.
 
 ```{r}
-
+ridge.logit <- glmnet::glmnet(x, y, alpha = 0, family = "binomial") # fit ridge logit model
+plot(ridge.logit) # plot model
 ```
 
 **1.3 Cross-Validation**
@@ -64,7 +65,10 @@ Then use the `cbind()` function to list this object's **$lambda** (shrinkage) an
 Finally, `plot()` the **ridge.logit.cv10** object. Notice that the plot shows log(lambda) rather than lambda, which is for display purposes.
 
 ```{r}
-
+set.seed(1) # assign set seed
+ridge.logit.cv10 <- cv.glmnet(x, y, alpha = 0, family = "binomial") # fit cv ridge logit model
+cv10 <- cbind(Lambda = ridge.logit.cv10$lambda, `10FCV` = ridge.logit.cv10$cvm) # create cv10 dataframe
+plot(ridge.logit.cv10) # plot model
 ```
 
 **1.4 Tuning the Model**
@@ -78,7 +82,11 @@ Then, find the corresponding **10FCV** for this best lambda using the `min()` fu
 Finally, use the `cbind` function to display the `"Best Lambda"=ridge.best.lambda`, `"Best Log Lambda"=log(ridge.best.lambda)` (to be able to spot this value in the graph) and `"Best 10FCV" = min.cv.ridge`.
 
 ```{r}
-
+ridge.best.lambda <- ridge.logit.cv10$lambda.min # find min lambda value
+ridge.best.lambda
+min.cv.ridge <- min(ridge.logit.cv10$cvm) # find min 2LL average
+min.cv.ridge
+cbind("Best Lambda" = ridge.best.lambda, "Best Log Lambda" = log(ridge.best.lambda), "Best 10FCV" = min.cv.ridge)
 ```
 
 **1.5 Comparing Coefficients**
@@ -90,21 +98,29 @@ Also, retrieve the **Plain Logit** coefficients from **ridge.logit**, this time 
 Now use the `cbind()` function to display 4 coefficient vectors: `ridge.coef` (log-odds, Ridge), `exp(ridge.coef)` (odds, ridge), `ridge.coef.0` (log-odds plain Logit), and `exp(ridge.coef.0)` (odd, plain Logit) and store the results in an object named **all.coefs**. Then use `colnames(all.coefs)` to name the resulting columns **Best Ridge**, **Odds**, **0-Lambda Ridge**, **Odds**. Then display **all.coefs**.
 
 ```{r}
-
+ridge.coef <- coef(ridge.logit, s=ridge.best.lambda) # ridge regression coefficients for best lambda
+ridge.coef.0 <- coef(ridge.logit, s=0) # plain logit ridge regression coefficients
+cbind(ridge.coef, exp(ridge.coef), ridge.coef.0, exp(ridge.coef.0)) -> all.coefs # create matrix vector
+colnames(all.coefs) <- c("Best Ridge", "Odds", "0-Lambda Ridge", "Odds") # assign column names
+all.coefs
 ```
 
 **1.6 Discussion**
 
 Do you see much difference between the Ridge coefficients for Best Lambda and plain Logit? Why do you think that is?
 
+#### Analysis
 
+The Ridge regression coefficients for Best Lambda and plain Logit are quite similar, which suggests that the regularization parameter is not having a significant impact on the model. This could be because the data is not highly correlated or because the sample size is large enough to provide stable estimates of the coefficients.
 
 
 **1.7 Interpretation** 
 
 Provide a brief interpretation for the **famhistPresent** (binary) in the **Ridge Regression**, both in terms of **log-odds** and **odds**. The interpretation is similar to one for a regular logit model.
 
+#### Analysis
 
+The log-odds of having coronary heart disease increases by 0.766 for each unit increase in famhistPresent. This means that the odds increases by a factor of $e^.766 = 2.14$ for each unit increase in famhistPresent.
 
 
 ## 2. LASSO Regression
