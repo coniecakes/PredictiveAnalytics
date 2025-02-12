@@ -170,8 +170,13 @@ Use the `cbind()` function to display the **Best Lambda** and **lowest 10FCV** f
 Then comment, which of the two modeling methods would you select and why?
 
 ```{r}
-
+cbind("Best Lambda (Ridge)" = ridge.best.lambda, "Best 10FCF (Ridge)" = min.cv.lasso, "Best Lambda (Lasso)" = lasso.best.lambda, "Lowest 10FCV (Lasso)" = min.cv.ridge)
 ```
+
+#### Analysis
+
+The cross validation results of both are very similar, with the Ridge slightly outperforming the Lasso. The Lasso has a lower best lambda value. I would select the Lasso model because it excludes the most insignificant variables, aligning with the principle of model simplicity. I would fit a model based on this and test for multicollinearity in the new model before proceeding. 
+
 
 Also, you can compare the Ridge and LASSO coefficients side by side:
 
@@ -191,7 +196,11 @@ all.coefs
 Load the **pls** library. Then enter `set.seed(1)` to get repeatable results and fit a **PCR** regression on all the data in the **mtcars** data set to predict **mpg** using all other variables as predictors. Use the `pcr()` function with `scale=T, validation="CV"` (for 10FCV). Name this PCR model **pcr.fit**. Then display the `summary()` of **pcr.fit** and draw a validation plot with `val.type="MSEP"` (MSE of the predictor).
 
 ```{r}
-
+library(pls)
+set.seed(1)
+pcr.fit <- pcr(mpg ~ ., data=mtcars, scale=T, validation="CV")
+summary(pcr.fit)
+plot(pcr.fit, val.type="MSEP")
 ```
 
 **3.2 Optimal Number of Components**
