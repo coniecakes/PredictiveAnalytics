@@ -200,14 +200,16 @@ library(pls)
 set.seed(1)
 pcr.fit <- pcr(mpg ~ ., data=mtcars, scale=T, validation="CV")
 summary(pcr.fit)
-plot(pcr.fit, val.type="MSEP")
+validationplot(pcr.fit, val.type="MSEP")
 ```
 
 **3.2 Optimal Number of Components**
 
 Based on the summary and the plot, what seems to be the optimal number of components?
 
+#### Analysis
 
+There is a clear elbow at 1 component and a subtle elbow at 3. After reviewing the RMSE and explained variance, the 3 component model exceeds the 1 component model because it has a lower RMSE (2.610 < 2.763) and has significant explanatory power for the x variables (90.07) and response variable (85.40).
 
 
 ## 4. Partial Least Squares Regression (PLSR)
@@ -217,17 +219,26 @@ Based on the summary and the plot, what seems to be the optimal number of compon
 Enter `set.seed(1)` again and repeat the analysis above, but using the `plsr()` function for **PLS** instead.
 
 ```{r}
-
+set.seed(1)
+plsr.fit <- plsr(mpg ~ ., data=mtcars, scale=T, validation="CV")
+summary(plsr.fit)
+validationplot(plsr.fit, val.type="MSEP")
 ```
 
 **4.2 Interpretation**
 
 Based on the summary and the plot, what seems to be the optimal number of components?
 
+#### Analysis
 
+There is again a clear elbow at 1 component, but after revieiwing the RMSE and explained variance, the 3 component model exceeds the 1 component model because it has significanly greater explanatory power for the x variables (89.94) and response variable (85.75). The 1 componenet model, while having a smaller RMSE (2.750 < 2.736), has a much lower explained variance of x (57.58 < 89.94). Therefore, I would select the 3 component model because it has a higher explained variance and is more interpretable than the 1 component model.
 
 
 **4.3 Evaluation**
 
 Based on the RMSE for 3 components, which method would you select, PCR or PLS? Briefly explain why.
 
+
+#### Analysis
+
+I would select the 3 Component PCR becase it has the lowest RMSE (2.610) and highest explanatory value of x and the response variable (90.07 & 85.40, respectively).
