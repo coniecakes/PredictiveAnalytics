@@ -2,7 +2,7 @@
 title: "Exercise 7 - Dimensionality"
 subtitle: "Ridge, LASSO, PCR and PLS"
 author: "O'Malley, Conie"
-date: "`r Sys.Date()"
+date: "`r Sys.Date()`"
 output: 
   word_document:
      toc: true
@@ -237,7 +237,6 @@ There is again a clear elbow at 1 component, but after revieiwing the RMSE and e
 **4.3 Evaluation**
 
 Based on the RMSE for 3 components, which method would you select, PCR or PLS? Briefly explain why.
-
 
 #### Analysis
 
