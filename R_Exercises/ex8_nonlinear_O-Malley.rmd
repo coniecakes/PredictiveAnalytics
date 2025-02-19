@@ -1,0 +1,109 @@
+---
+title: "Exercise 8 - Non-Linear Models"
+author: "O'Malley, Conie"
+date: "`r Sys.Date()`"
+output: 
+  word_document:
+     toc: true
+     toc_depth: 2
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=T, include=T, warning=F, message=F)
+```
+
+## Preparation 
+
+Download the **Ex8_NonLinear_YourLastName.Rmd** R Markdown file to your working directory, rename it to include your last name and follow the instructions below. When you finish, knit it into an HTML file and upload it (the zipped or PDF version of your knitted file) onto Blackboard.
+
+## 1. Linear Model
+
+**1.1 Inspecting Linearity**
+
+Use the `read.table()` function to read the dataset in **SoftwareData.csv** (data on software projects) using the parameters `header=T, sep=","`. Name this dataset **sw**. Then plot `sw$dev.days` (number of days to complete a SW project) against `sw$num.modifs` (number of SW modifications involved). Does the plot support a linear relationship?
+
+```{r}
+sw <- read.table("/Users/coniecakes/Library/CloudStorage/OneDrive-Personal/001. Documents - Main/023. Programming Tools/R Studio/PredictiveAnalytics/R_Exercises/data/SoftwareData.csv", header=T, sep=",")
+plot(sw$dev.days ~ sw$num.modifs)
+```
+
+
+#### Analysis
+
+No the plot does not support a linear relationship - the are heavily skewed right.
+
+**1.2 Linear Model** (baseline)
+
+The **priority** variable is categorical (Low, Medium, High, VeryHigh). Re-level the sw$priority variable using the `relevel()` function with `ref="Low"` to use **Low** as the reference level. Then fit a linear model to predict **dev.days** using **num.modifs** and **priority** as predictors. Display the `summary()` results.
+
+
+```{r}
+sw$priority <- as.factor(sw$priority)
+sw$priority <- relevel(sw$priority, ref = "Low")
+
+fit.linear <- lm(dev.days ~ num.modifs + priority, data = sw)
+summary(fit.linear)
+```
+
+## 2. Interaction Model
+
+**2.1 Fit Interaction Model**
+
+Fit a model with an interaction term for **num.modifs*priority**. Name this model **fit.inter**. Display its `summary()` results and to an `anova()` test to compare the linear and interaction models.
+
+```{r}
+fit.inter <- lm(dev.days ~ num.modifs*priority, data = sw)
+summary(fit.inter)
+anova(fit.linear, fit.inter)
+```
+
+2.2 Based on the results above, which model would you select. Briefly explain why.
+
+#### Analysis
+
+I would choose the linear model because the interaction model fails the F test: $p = 0.666 > 0.05$.
+
+2.3 In class we learned how to interpret B (binary) x C (continuous) interactions. But the interaction term above is categorical x continuous. How is this different?
+
+#### Analysis
+
+Categorical variables can have 3+ levels where as binary variables only have 2 levels. This means that there can a larger number of interaction terms when there is a categorical variable as opposed to a binary variable. 
+
+
+2.4 The resulting interaction effects are not significant, so we don't need to spend too much time analyzing them. But, based on the direction of the effects, does the interaction with **priority** enhance or offset the effect of **num.modifs** on **dev.days**?
+
+`priorityMedium` offsets the effects of the interaction factors because the signs are opposite of one another. `priorityHigh` and `priorityVeryHigh` are enhanced by the interaction terms.
+
+## 3. Quadratic Polynomial Model
+
+3.1 Since the plot above suggests a negative relationship between **num.modifs** and **dev.days** fit a **quadratic** polynomial to evaluate the effect of **num.modifs** on **dev.days**. Name the model **fit.quad**. Use the `poly()` function using `2, raw=T` as parameters. Display the `summary()` results and compare the linear and quadratic models using `anova()`.
+
+```{r}
+fit.quad <- lm(dev.days ~ poly(num.modifs, degree = 2, raw = TRUE), data = sw)
+summary(fit.quad)
+anova(fit.linear, fit.quad)
+```
+
+3.2 Based on this results, Which model is preferred? Briefly explain why. Also, provide a quick interpretation of the effect of **num.modifs**.
+
+#### Analysis
+
+The quadratic model because the model passes the F-test $(p = 0.01121 < 0.05)$. `num.modifs` starts off with a positive slope coefficient for the linear term, the has a negative slope coefficient for the quadratic term, meaning the shape of the model is parabolic - starting positive then curving downward.
+
+## 4. Piecewise Linear Model
+
+4.1 The plot above clearly shows different trends at different ranges of the data. From a visual inspection, it seems like the data follows a trend up to 200 modifications, then the trend changes sharply after that.
+
+So, let's fit a **piecewise linear** model to predict **dev.days** with 2 sections divided at 1 knot at **num.modifs** of 200. Let's keep the **priority** predictor in the model, but first relevel **sw$priority** to have **Low** as the reference variable using `relevel(sw$priority, ref="Low")`. Name this model **fit.piece**. you need to model `num.modifs+I((num.modifs-200)*(num.modifs>200))` as predictors. Display the `summary()` results for `fit.piece`.
+
+```{r}
+sw$priority <- relevel(sw$priority, ref="Low")
+fit.piece <- lm(dev.days ~ priority + num.modifs + I((num.modifs-200)*(num.modifs>200)), data = sw)
+summary(fit.piece)
+```
+
+4.2 Provide a quick interpretation of the piecewise linear effects of **num.modifs**.
+
+#### Analysis
+
+The higher the `priority` level, the shorter the shorter the software development time becomes because all $\beta$ coefficients are negative (all other variables held constant). When modifications exceed 200, there is a diminshed effect on the development time ($\beta_{num.modifs} + \beta_{num.modifs>200} = 0.26 - 0.23 = 0.03$).
