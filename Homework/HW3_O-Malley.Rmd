@@ -87,7 +87,7 @@ Yes, multicollinearity was addressed because the Condition Index and Variable In
 ```{r}
 # Done for you
 
-lm.fit.large<-lm(Apps~Enroll+Top10perc+Outstate+Room.Board+PhD+S.F.Ratio+Expend+Grad.Rate,data=College)
+lm.fit.large <- stats::lm(Apps~Enroll+Top10perc+Outstate+Room.Board+PhD+S.F.Ratio+Expend+Grad.Rate,data=College)
 summary(lm.fit.large)
 ```
 
@@ -98,23 +98,32 @@ Use the `scope=list()` function from the **lower** bound model of **lm.fit.reduc
 After run the stepwise variable selection process, display the `summary()` results.
 
 ```{r}
-
+null_model <- stats::lm(Apps ~ 0, College) # fit a null model that I didn't end up using
+lm.stepwise <- stats::step(lm.fit.large, scope=list(lower=lm.fit.reduced, upper=lm.fit.large),  
+                            object = direction="both", test="F") # run stepwise regression
+summary(lm.stepwise) # view summary statistics
 ```
 
 2.2 Notice that S.F.Ratio is significant at the p=0.02 level, which is OK for most purposes. However, let's suppose that for this model you wish to include only variables significant at the p<0.01 level. In this case, you need to include the `k=` attribute. To find out the value of k to use, enter `qchisq(0.01, 1, lower.tail=F)`. You should get **6.6**. Thus, entering `k=6.6` as an attribute in the `step()` function should yield a more restrictive model. Fit a stepwise model and store the results in an object named **lm.stepwise.01**. Then display its `summary()` results.
 
 ```{r}
-
+stats::qchisq(0.01, 1, lower.tail = FALSE) -> k_value
+lm.stepwise.01 <- stats::step(lm.fit.large, scope = list(lower=lm.fit.reduced, upper=lm.fit.large),
+                            direction = "both", test = "F", k = k_value) # fit new stepwise model
+summary(lm.stepwise.01) # view summary statistics
 ```
 
 2.3 Compare the two stepwise results above. What is the main difference between the 2?
 
+#### Analysis
 
+The `S.F.Ratio` variable is not longer siginificant to the model and the adjusted $r^2$ value increases with the new model slightly from $r^2 = 0.7771$ to $r^2 = 0.7779$. 
 
 2.4 Notice that **Top10perc** was included in **lm.stepwise.01** even thought p>0.01. Why do you think this happened?
 
+#### Analysis
 
-
+Because by including `Top10perc`, the overall model has a better adjusted $r^2$ value and a smaller AIC value, so it is included in the model. So even though `Top10perc` is not statistically significant in terms of individual `p value`, it adds significane to the overall model by its inclusion.
 
 ## 3. (20 pts.) Cross Validation
 
@@ -123,7 +132,7 @@ Load the **{car}** library and attach the dataset into your work environment. Ru
 ```{r}
 # Done for you
 
-library(car)
+#library(car)
 data(Salaries)
 attach(Salaries)
 ```
@@ -135,31 +144,46 @@ attach(Salaries)
 Also, do a quick inspection of your results by: list the number of rows of the **Salaries** dataset; the length of the **train** vector; the **first 10** values in the **train** vector; and the corresponding 10 first observations in the train subset (tip: use Salaries[train[1:10],], but try to understand why).
 
 ```{r}
+set.seed(15) # set seed for reproducibility
 
+train <- sample(1:nrow(Salaries), 0.8 * nrow(Salaries)) # create sample subset
+print(nrow(Salaries))
+print(length(train))
+print(utils::head(train))
+print(Salaries[train[1:10],])
 ```
 
 3.2 Fit a linear model to predict **salary** using all remaining variables as predictors, but using only the **train** data subset. Store your resulting model in an object named **fit.train** and display the `summary()` results.
 
 ```{r}
-
+fit.train <- stats::lm(salary ~ ., data = Salaries[train,]) # fit linear model
+summary(fit.train) # view summary statistics
 ```
 
 3.3 Using the **fit.train** model, compute the **MSE** for the **train** and **test** subsets. Store the results in objects named **train.mse** and **test.mse**, respectively. Then, use the `c()` function to display these two results together with their respective labels **"Train MSE"** and **"Test MSE"**
 
 ```{r}
-
+# compute train MSE
+train.mse <- mean((Salaries$salary[train] - stats::predict(fit.train, newdata = Salaries[train,]))^2)
+# compute test MSE
+test.mse <- mean((Salaries$salary[-train] - stats::predict(fit.train, newdata = Salaries[-train,]))^2)
+c("Train MSE" = train.mse, "Test MSE" = test.mse) # concatenate into a list
 ```
 
 3.4 Briefly comment on the difference between the **Train** and **Test MSE** values. Is this what you expected? Why or why not?
 
+#### Analysis 
 
+The MSE of the training data set was greater than that of the test data. That was expected due to the difference in sample sizes of the test and training data. This is what I had expected, although with an 80/20 split, I expected the test MSE to be less than it was in proportion to the train MSE.
 
 ### Leave One Out Validation (LOOCV)
 
 3.5  Using the **Salaries{car}** data set, fit a **GLM** model to predict salary using all predictors. Display the summary results. Store the results in an object named **glm.fit**. Tip: when you use the `glm()` function you need to specify the family and the link function. However, if you don't specify a family, the "gaussian" family (i.e., normal distribution) and the "identity" link (i.e., no transformation of the response variable) will be used as defaults. So just use the `glm()` function exactly how you use the `lm()` function and the result will be an OLS model.
 
 ```{r}
-
+# fit glm 
+glm.fit <- stats::glm(salary ~ ., data = Salaries, family = stats::gaussian(link = "identity"))
+summary(glm.fit) # view summary statistics
 ```
 
 3.6 Load the **{boot}** library and use the `cv.glm()` function and the **glm.fit** object above to compute and display the **LOOCV MSE** (Leave One Out) for this model (the first element $delta[1]) contains the raw MSE.
