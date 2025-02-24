@@ -241,10 +241,8 @@ y=College$Apps
 4.2 Then fit a **Ridge** regression **x** and **y**. Name the resulting object **ridge.mod**. Enter `ridge.mod$lambda[1:6] to view the first 6 lambda values.
 
 ```{r}
-### Fix this shit
-
-ridge.mod <- glmnet::glmnet(x, y, aplha = 0) # fit a ridge regression model
-ridge.mod$lamba[1:6] # view the first 6 lambda values
+ridge.mod <- glmnet::glmnet(x, y, alpha = 0) # fit a ridge regression model
+ridge.mod$lambda[1:6] # view the first 6 lambda values
 ```
 
 4.3 Enter `set.seed(1)` so that your sample matches my results. Then, using the **cv.glmnet()** function in the **{glmnet}** package, compute the cross-validation statistics for the **ridge.mod** model above. Store the results in an object named **ridge.cv**. 
@@ -252,28 +250,41 @@ ridge.mod$lamba[1:6] # view the first 6 lambda values
 Then use the `cbind()` funtion to display the `ridge.cv$lambda` and `ridge.cv$cvm` results together. Label the two columns "Lambda" and "10FCV" respectively
 
 ```{r}
-
+set.seed(1) # assign set seed
+ridge.cv <- glmnet::cv.glmnet(x, y, alpha = 0) # apply cross validation
+cbind(Lambda = ridge.cv$lambda, `10FCV` = ridge.cv$cvm)
+plot(ridge.cv)
 ```
 
 4.4 It should be obvious from the output above that the best lambda will be quite small. Let's find it. Find the **best lambda** and store it in an object named **ridge.bestlam**. Then find the minimum cross-validation MSE with `min(ridge.cv$cvm)` and store the results in an object named **min.mse**. Display the resulting two values together using the `cbind()` function, with proper labels
 
 ```{r}
+ridge.bestlam <- ridge.cv$lambda[which.min(ridge.cv$cvm)] # find best lambda
+min.mse <- min(ridge.cv$cvm) # find minimum mse
+cbind(`Best Lambda` = ridge.bestlam, `Minimum MSE` = min.mse)
 
 ```
 
 4.5 Now, extract the **coefficients** for the Ridge regression with the best lambda you just found above and name the coefficient vector **ridge.coef**. You can use the `predict()` or `coef()` functions with `s=bestlam` for this purpose. Then extract the **OLS** coefficients using `s=0` and name this vector **ols.coef**. List the two sets of coefficients side by side using the `cbind()` function.
 
 ```{r}
+ridge.coef <- stats::coef(ridge.cv, s = ridge.bestlam) # extract coefficients for best lambda
+ols.coef <- stats::coef(ridge.cv, s = 0) # extract ols coefficients
+cbind(`Ridge Coefficients` = ridge.coef, `OLS Coefficients` = ols.coef)
 
 ```
 
 4.6 Is there much difference between the Ridge and OLS regression coefficients? Why do you think that is?
 
+#### Analysis
 
+There is no difference between the Ridge and OLS regression coefficients. This is because we have already removed the variables that are highly correlated to reduce multicollinearity.
 
 4.7 Which of the two models would you chose and why?
 
+#### Analysis
 
+I would choose the OLS model because it is simpler and easier to interpret. We have adequately addressed multicollinearity, so the added complexity of the ridge regression does not make sense in this case.
 
 4.8 Using the Ridge model with the best lambda, interpret the coefficient for the predictor **PhD**. To answer this, review the documentation for the **College** data set and articulate your interpretation correctly.
 
