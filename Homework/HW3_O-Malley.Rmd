@@ -1,0 +1,356 @@
+---
+title: "ITEC 621 - Homework 3 - Cross Validation and Dimensionality"
+subtitle: "Kogod School of Business"
+author: "O'Malley, Conie"
+date: "`r Sys.Date()`"
+output: 
+  word_document:
+     toc: true
+     toc_depth: 2
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+```
+
+## Submission: 
+
+Download the **HW3_YourLastName.Rmd** R Markdown file and save it with **your own last name**. <font color="red">Note, it is important that you conform to this file naming convention</font>, otherwise it will affect the sorting of assignments for us. Please name your file as instructed and complete all your work in that template file, **Knit** the corresponding Word or PDF file. Your knitted file **MUST display your R commands**. In order to do this, please ensure that the `knittr::` global option command above has `echo=T`.
+
+## Specific Instructions
+
+## Knitting, Writing and Professional Presentation
+
+One of the goals of HW's and Exercises is to practice with effective and **professional R Markdown analytics report production**. You are expected to prepare and produce your knitted document in a professional manner. Up to 10 points will be deducted for improper or no knitting and professional appearance. The main criteria is how acceptable your report would be for a buiness management or client audience, including: proper use of fonts, punctuation and sentence structure; lack of grammatical and spelling errors; and clear and succint articulation of narratives; among other things. Please note that this section is about report formatting and presentation. The quality and completeness of your answers will be graded separately in each question below. 
+
+**Resources:** Please make an appointment with the **KCBC** if you need help with the writing and presentations. The KCBC has a wonderful team of TA's ready and eager to help with the writing. If you are an international student, please make an appointment with Shari Patillo, Associate Director of International Student Development. She is also very interested and eager to help international students, but all students are welcome.
+
+## 1. (20 pts.) Multi-Collinearity Analysis
+
+Load the **{ISLR}** library, which contains the **College** data set. Then type `?College` in the console (not in the script) and familiarize yourself with the dataset.
+
+```{r}
+# Done for you
+
+library(ISLR)
+data(College)
+```
+
+1.1 Fit a full model to predict **applications** using **all** remaining variables as predictors and name it **lm.fit.all**. Then display the `summary()` of this model.
+
+```{r}
+# Done for you
+
+lm.fit.all <- lm(Apps ~ ., data = College)
+
+summary(lm.fit.all)
+```
+
+1.2 Then, load the **{klaR}** (for CI) and **{car}** (for VIF's) libraries. Obtain the **Condition Index (CI)** for this model using the `cond.index()`. That is, feed the **lm.fit.all** model into this function, along with the `data = College` parameter.  
+
+```{r}
+library(car)
+library(klaR)
+
+klaR::cond.index(lm.fit.all, data = College) # calculate CI
+```
+
+1.3 Then load the **{car}** library and then compute and display the Variance Inflation Factors **(VIF's)** for the predictors in the model using the `vif()` function.
+
+```{r}
+car::vif(lm.fit.all) # calculate VIFs
+```
+
+1.4 Do the CI and VIF's provide evidence of severe multicollinearity with the model? Why or why not? Which variables seem to be the problem.
+
+
+
+1.5 Fit a **reduced** model to predict **Apps** on **Enroll** and **Top10perc** only. Name it **lm.fit.reduced**. Display: (a) the model summary results; (b) the CI, but this time using `scale=T, center=T, add.intercept=F`; and (c) the VIF's.
+
+```{r}
+lm.fit.reduced <- stats::lm(Apps ~ Enroll + Top10perc, College) # fit a reduced model
+summary(lm.fit.reduced) # view summary statistics
+klaR::cond.index(lm.fit.reduced, scale = T, center = T, add.intercept=F, data = College) # calculate CI
+car::vif(lm.fit.reduced) # calculate VIFs
+```
+
+1.6 Was the multi-collinearity problem eliminated? Why or why not?
+
+#### Analysis
+
+Yes, multicollinearity was addressed because the Condition Index and Variable Inflation Factors dropped to acceptable levels $CI < 50$ and $VIF_i < 10$, respectively.
+
+## 2. (20 pts.) Variable Selection with Stepwise
+
+2.1 Let's try the **Stepwise** approach to variable selection to find an optimal model between **lm.fit.reduced** and **lm.fit.large**. We already have  **lm.fit.reduced** so let's fit the larger model **lm.fit.large** with all variables that make sense from a business standpoint. Display the `summary()` results for **lm.fit.large**.
+
+```{r}
+# Done for you
+
+lm.fit.large<-lm(Apps~Enroll+Top10perc+Outstate+Room.Board+PhD+S.F.Ratio+Expend+Grad.Rate,data=College)
+summary(lm.fit.large)
+```
+
+Use the `step()` function to run a **stepwise** variable selection process. Save the stepwise results in an object named **lm.stepwise**. As you know, the stepwise approach can start with the larger model and go backwards, or with the reduced model and proceed forward. Let's do the backwards stepwise by entering  **lm.fit.large** as the starting base.
+
+Use the `scope=list()` function from the **lower** bound model of **lm.fit.reduced** and the **upper** bound model of **lm.fit.large**. This will limit the set of stepwise models tried to only those within this scope. Also, in both cases, use `direction="both"` (that is, stepwise) and `test="F"` to get p-values for the predictors.
+
+After run the stepwise variable selection process, display the `summary()` results.
+
+```{r}
+
+```
+
+2.2 Notice that S.F.Ratio is significant at the p=0.02 level, which is OK for most purposes. However, let's suppose that for this model you wish to include only variables significant at the p<0.01 level. In this case, you need to include the `k=` attribute. To find out the value of k to use, enter `qchisq(0.01, 1, lower.tail=F)`. You should get **6.6**. Thus, entering `k=6.6` as an attribute in the `step()` function should yield a more restrictive model. Fit a stepwise model and store the results in an object named **lm.stepwise.01**. Then display its `summary()` results.
+
+```{r}
+
+```
+
+2.3 Compare the two stepwise results above. What is the main difference between the 2?
+
+
+
+2.4 Notice that **Top10perc** was included in **lm.stepwise.01** even thought p>0.01. Why do you think this happened?
+
+
+
+
+## 3. (20 pts.) Cross Validation
+
+Load the **{car}** library and attach the dataset into your work environment. Run `?Salaries` from the console (not in the script) and inspect the variables in this dataset.
+
+```{r}
+# Done for you
+
+library(car)
+data(Salaries)
+attach(Salaries)
+```
+
+### Random Splitting (Holdout Sample)
+    
+3.1 Enter `set.seed(15)` so that you get the same results if you run your cross validation commands multiple times. Then use the `sample()` function to create an index vector called **train** which you can later use to split the data set into **80%** train subsample. 
+
+Also, do a quick inspection of your results by: list the number of rows of the **Salaries** dataset; the length of the **train** vector; the **first 10** values in the **train** vector; and the corresponding 10 first observations in the train subset (tip: use Salaries[train[1:10],], but try to understand why).
+
+```{r}
+
+```
+
+3.2 Fit a linear model to predict **salary** using all remaining variables as predictors, but using only the **train** data subset. Store your resulting model in an object named **fit.train** and display the `summary()` results.
+
+```{r}
+
+```
+
+3.3 Using the **fit.train** model, compute the **MSE** for the **train** and **test** subsets. Store the results in objects named **train.mse** and **test.mse**, respectively. Then, use the `c()` function to display these two results together with their respective labels **"Train MSE"** and **"Test MSE"**
+
+```{r}
+
+```
+
+3.4 Briefly comment on the difference between the **Train** and **Test MSE** values. Is this what you expected? Why or why not?
+
+
+
+### Leave One Out Validation (LOOCV)
+
+3.5  Using the **Salaries{car}** data set, fit a **GLM** model to predict salary using all predictors. Display the summary results. Store the results in an object named **glm.fit**. Tip: when you use the `glm()` function you need to specify the family and the link function. However, if you don't specify a family, the "gaussian" family (i.e., normal distribution) and the "identity" link (i.e., no transformation of the response variable) will be used as defaults. So just use the `glm()` function exactly how you use the `lm()` function and the result will be an OLS model.
+
+```{r}
+
+```
+
+3.6 Load the **{boot}** library and use the `cv.glm()` function and the **glm.fit** object above to compute and display the **LOOCV MSE** (Leave One Out) for this model (the first element $delta[1]) contains the raw MSE.
+
+```{r}
+
+```
+
+**Technical Note FYI**: since glm() and lm() can both fit OLS models, some times it is convenient to use one or the other because other useful libraries and functions need either `glm()` or `lm()` objects specifically. This is one of these cases -- the `cv.glm()` function only works with `glm()` objects. However, if you are interested in R-Squares and F-Statistics you and run the same model with lm() and you should get the same results.*</span>
+
+### K-Fold Validation (KFCV)
+
+3.7 Using the same **cv.glm()** function and **glm.fit** model object, compute and display the **10-Fold** cross validation MSE for this model. 
+
+```{r}
+
+```
+
+3.8 Compare the differences between the **10FCV** result above and this **LOOCV** result and provide a brief concluding comment. Is there a meaning to the difference between these 2 MSE values? Please explain why or why not.
+
+
+
+## 4. (20 pts.) Ridge and LASSO
+
+4.1 Setup: x matrix and y vector (done for you)
+
+First, change the scientific notation with `options(scipen=4)`.
+
+Then, load the **{glmnet}** and **{ISLR}** libraries. Then run `?College` in the R Console (not in the script) to view and familiarize yourself with the College data set attributes. Enter `College=na.omit(College)` to remove all rows with omitted values.
+
+Then, create an **x** predictor matrix with the `model.matrix()` function with the following variables: `Apps~Enroll+Top10perc+Outstate+Room.Board+PhD+S.F.Ratio+Expend+Grad.Rate`, from the **College** data set in **{ISLR}**, but remove the intercept (first) column from the resulting matrix with **[,-1]**. Then create the **y** vector using **Apps** column in the **College** data set.
+
+```{r}
+# Done for you
+
+options(scipen=4)
+
+library(glmnet) # Contains functions for Ridge and LASSO
+library(ISLR) # Contains the College data set
+
+College=na.omit(College)
+
+x=model.matrix(Apps~Enroll+Top10perc+Outstate+Room.Board+PhD+S.F.Ratio+Expend+Grad.Rate, data=College)[,-1]
+
+y=College$Apps
+```
+
+4.2 Then fit a **Ridge** regression **x** and **y**. Name the resulting object **ridge.mod**. Enter `ridge.mod$lambda[1:6] to view the first 6 lambda values.
+
+```{r}
+
+```
+
+4.3 Enter `set.seed(1)` so that your sample matches my results. Then, using the **cv.glmnet()** function in the **{glmnet}** package, compute the cross-validation statistics for the **ridge.mod** model above. Store the results in an object named **ridge.cv**. 
+
+Then use the `cbind()` funtion to display the `ridge.cv$lambda` and `ridge.cv$cvm` results together. Label the two columns "Lambda" and "10FCV" respectively
+
+```{r}
+
+```
+
+4.4 It should be obvious from the output above that the best lambda will be quite small. Let's find it. Find the **best lambda** and store it in an object named **ridge.bestlam**. Then find the minimum cross-validation MSE with `min(ridge.cv$cvm)` and store the results in an object named **min.mse**. Display the resulting two values together using the `cbind()` function, with proper labels
+
+```{r}
+
+```
+
+4.5 Now, extract the **coefficients** for the Ridge regression with the best lambda you just found above and name the coefficient vector **ridge.coef**. You can use the `predict()` or `coef()` functions with `s=bestlam` for this purpose. Then extract the **OLS** coefficients using `s=0` and name this vector **ols.coef**. List the two sets of coefficients side by side using the `cbind()` function.
+
+```{r}
+
+```
+
+4.6 Is there much difference between the Ridge and OLS regression coefficients? Why do you think that is?
+
+
+
+4.7 Which of the two models would you chose and why?
+
+
+
+4.8 Using the Ridge model with the best lambda, interpret the coefficient for the predictor **PhD**. To answer this, review the documentation for the **College** data set and articulate your interpretation correctly.
+
+
+
+4.9 **LASSO** Illustration (only, not required)
+
+This is not required for this homework, but you should try this on your own. Try the model above with LASSO instead of Ridge simply by copying and pasting all the commands above and changing **alpha** from 0 to 1. You may want to name your objects differently. 
+
+```{r}
+# LASSO Example done for you
+
+# I'm not repeating some of the lines above because LASSO is using the same libraries and model matrices
+
+# Just change alpha from 0 to 1
+lasso.mod <- glmnet(x, y, alpha=1) 
+
+# Cross-validation
+lasso.cv=cv.glmnet(x,y,alpha=1) 
+plot(lasso.cv)
+
+# Best Lambda
+lasso.bestlam <- lasso.cv$lambda.min 
+min.mse=min(lasso.cv$cvm)
+
+cbind("Best LASSO Lambda"=lasso.bestlam, "Best LASSO MSE"=min.mse)
+
+# LASSO yields a smaller MSE=3.4M compared to Ridge's MSE=3.6M. LASSO is slightly better in this case.
+
+lasso.coef <- coef(lasso.mod, s=lasso.bestlam)
+# Alternatively, predict(lasso.mod, type="coefficients", s=bestlam)
+
+# Listing Ridge, LASSO and OLS coefficients together
+cbind(ridge.coef, lasso.coef, ols.coef)
+
+# Comment FYI: the relative importance of the coefficients are similar among all three models, Ridge, LASSO and OLS, mainly because there was little shrinkage. Notice that different coefficients have shrunk at different rates. Also, note that due to the complex math involved in minimizing the SSE plus penalties, some coefficients may grow a bit before they shrink. The final size of the coefficients is less important because Ridge and LASSO yield “biased” coefficients, so you must interpret these with caution. The best lambda only ensures that predictions have the lowest MSE, so that the predictive accuracy of the model improves. The coefficients should only provide a general direction of results, but again, don’t bet on them because they are biased (sometimes they even change signs).
+```
+
+
+## 5. (20 pts.) PCR and PLS
+
+5.1  First, read the **PizzaCal.csv** file. After reading the file, open and inspect it to be sure that you read it correctly.
+
+```{r}
+# Done for you
+
+pizza <- read.table("PizzaCal.csv", header=TRUE, row.names=1, sep=",")
+
+# Note on row.names=1 - the first column has pizza ID's, which are not really data to analyze, just row labels. 
+```
+
+This file contains nutrition data on a sample of 300 slices of frozen pizza (100 grams each):
+
+- **brand**: categorical variable with brand labels
+- **import**: binary variable, 0 if domestic, 1 if imported
+- **cal**: number of caloerries in the slice
+
+All remaining measures are in grams, per slice:
+
+- **mois**: moisture content
+- **prot**: amount of protein
+- **fat**: fat content
+- **ash**: ash content
+- **sodium**: amount of sodium
+- **carb**: amount of carbohydrates
+
+You can explore the correlation matrix of this data set on your own (NOT in this script). and you will find that the variables are highly correlated. So, PCR or PLS would be good methods to use.
+
+5.2 Principal Components Regression (PCR)
+
+Load the **{pls}** library and fit a **PCR** model using the `pcr()` function to predict calories **cal** using all the remaining variables as predictors and the full data set. Use the **LOOCV** validation this time `scale=T, validation="LOO"`. Store the results in an object named **pcr.fit**. Then inspect the results with a `validationplot()` and displaying its `summary()`
+
+```{r}
+
+```
+
+5.3 Choose 3 to 5 candidate models with different number of components, based on the scree plot and the summary output above. Provide a brief rationale for you selection of candidate models. In your answer, please refer to the "elbows" in the scree plot, the cross-validation (CV values of the RMSEP), and the % explained variance of the various components.
+
+
+
+5.4 Coefficients
+
+Regardless of your answer above, let's explore a few models at each of the elbows, with 2, 4 and 10 components, and also for 5 components. Use the `pcr.fit$coefficients` attribute, but use `[,,c(2,4,5,10)]` as the index.
+
+```{r}
+
+```
+
+5.5 Which of these models would you select? Provide a concise but clear rationale for your selection. Refer to the bias vs. variance tradeoff and also to the cross-validation RMSE in your answer.
+
+
+
+5.6 Regardless of your answer above, to illustrate a simpler example, let's fit a model with **5 components** only, using the `ncomp=5` attribute in the `pcr()` function. Name this model **pcr.fit.5**. Then display its `summary()`, the component `$loadings` and the resulting coefficients for 5 components, using the `coef()` function with the `ncomp=5` attribute. 
+
+```{r}
+
+```
+
+5.7 **PLS** Illustration (only, not required)
+
+This is not required for this homework, but you should try this on your own. Try the model above with LASSO instead of Ridge simply by copying and pasting all the commands above, but using the `plsr()` function rather than the `pcr()` function. 
+
+```{r}
+# Done for you
+
+pls.fit <- plsr(cal~., data=pizza, scale=TRUE, validation="LOO")
+validationplot(pls.fit, val.type="RMSEP")
+summary(pls.fit)
+coef(pls.fit, ncomp=8)
+
+# It looks like the 8 component model is optimal, with a CV RMSE of 1.636 and 78.99% of the variance explained. Which model would you choose, PCR with 10 components or PLS with 8 components? Why?
+
+# The PCR model with 10 components has a CV RMSE of 2.016 and 99.75 of explained variance. The PLS model with 8 components has a CV RMSE of 1.636, but it only explains 78.99% of the variance. This is to be expected, because PLS aligns better with the response variable, but the components are not exactly principal components. I would select the PLS model because it has a lower CV RMSE. 
+```
