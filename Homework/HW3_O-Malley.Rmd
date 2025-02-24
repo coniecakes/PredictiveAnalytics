@@ -63,7 +63,7 @@ car::vif(lm.fit.all) # calculate VIFs
 
 1.4 Do the CI and VIF's provide evidence of severe multicollinearity with the model? Why or why not? Which variables seem to be the problem.
 
-
+Yes, there is evidence of severe multicollinearity based on the `CI` of 51.9833 and the `VIF`s of 21.3654 and 18.0179 for the variables `Enroll` and `F.Undergrad`, respectively. 
 
 1.5 Fit a **reduced** model to predict **Apps** on **Enroll** and **Top10perc** only. Name it **lm.fit.reduced**. Display: (a) the model summary results; (b) the CI, but this time using `scale=T, center=T, add.intercept=F`; and (c) the VIF's.
 
