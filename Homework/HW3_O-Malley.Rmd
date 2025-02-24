@@ -189,7 +189,10 @@ summary(glm.fit) # view summary statistics
 3.6 Load the **{boot}** library and use the `cv.glm()` function and the **glm.fit** object above to compute and display the **LOOCV MSE** (Leave One Out) for this model (the first element $delta[1]) contains the raw MSE.
 
 ```{r}
+library(boot)
 
+loocv <- boot::cv.glm(Salaries, glm.fit, K = nrow(Salaries))# compute LOOCV 
+print(loocv$delta[1]) # view the raw MSE
 ```
 
 **Technical Note FYI**: since glm() and lm() can both fit OLS models, some times it is convenient to use one or the other because other useful libraries and functions need either `glm()` or `lm()` objects specifically. This is one of these cases -- the `cv.glm()` function only works with `glm()` objects. However, if you are interested in R-Squares and F-Statistics you and run the same model with lm() and you should get the same results.*</span>
@@ -199,11 +202,15 @@ summary(glm.fit) # view summary statistics
 3.7 Using the same **cv.glm()** function and **glm.fit** model object, compute and display the **10-Fold** cross validation MSE for this model. 
 
 ```{r}
-
+cfv10 <- boot::cv.glm(Salaries, glm.fit, K = 10) # compute 10-fold CV 
+print(cfv10$delta[1]) # view the raw MSE
 ```
 
 3.8 Compare the differences between the **10FCV** result above and this **LOOCV** result and provide a brief concluding comment. Is there a meaning to the difference between these 2 MSE values? Please explain why or why not.
 
+#### Analysis 
+
+The `LOOCV` MSE is much smaller than the `10FCV` MSE ($516540699 < 524086639$) because the `LOOCV` captures a lot of noise and tends to overfit the model by only leaving out one data point per model iteration. The `10FCV` will introduce more bias into the model in comparison to the `LOOCV` model will, but the `10FCV` model will perform better against new because it does not capture the noise that the `LOOCV` model captures, which is evidenced by the smaller MSE of the `LOOCV`.
 
 
 ## 4. (20 pts.) Ridge and LASSO
@@ -234,7 +241,10 @@ y=College$Apps
 4.2 Then fit a **Ridge** regression **x** and **y**. Name the resulting object **ridge.mod**. Enter `ridge.mod$lambda[1:6] to view the first 6 lambda values.
 
 ```{r}
+### Fix this shit
 
+ridge.mod <- glmnet::glmnet(x, y, aplha = 0) # fit a ridge regression model
+ridge.mod$lamba[1:6] # view the first 6 lambda values
 ```
 
 4.3 Enter `set.seed(1)` so that your sample matches my results. Then, using the **cv.glmnet()** function in the **{glmnet}** package, compute the cross-validation statistics for the **ridge.mod** model above. Store the results in an object named **ridge.cv**. 
