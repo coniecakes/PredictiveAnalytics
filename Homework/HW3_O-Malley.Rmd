@@ -100,7 +100,7 @@ After run the stepwise variable selection process, display the `summary()` resul
 ```{r}
 null_model <- stats::lm(Apps ~ 0, College) # fit a null model that I didn't end up using
 lm.stepwise <- stats::step(lm.fit.large, scope=list(lower=lm.fit.reduced, upper=lm.fit.large),  
-                            object = direction="both", test="F") # run stepwise regression
+                          direction="both", test="F") # run stepwise regression
 summary(lm.stepwise) # view summary statistics
 ```
 
@@ -333,7 +333,7 @@ cbind(ridge.coef, lasso.coef, ols.coef)
 ```{r}
 # Done for you
 
-pizza <- read.table("Homework/data/PizzaCal.csv", header=TRUE, row.names=1, sep=",")
+pizza <- read.table("/Users/coniecakes/Library/CloudStorage/OneDrive-Personal/001. Documents - Main/023. Programming Tools/R Studio/PredictiveAnalytics/Homework/data/PizzaCal.csv", header=TRUE, row.names=1, sep=",")
 
 # Note on row.names=1 - the first column has pizza ID's, which are not really data to analyze, just row labels. 
 ```
