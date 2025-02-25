@@ -288,7 +288,9 @@ I would choose the OLS model because it is simpler and easier to interpret. We h
 
 4.8 Using the Ridge model with the best lambda, interpret the coefficient for the predictor **PhD**. To answer this, review the documentation for the **College** data set and articulate your interpretation correctly.
 
+#### Analysis
 
+For every 1% increase of the number of college professors with a PhD there is an 3.5 unit increase in the number of applications received.
 
 4.9 **LASSO** Illustration (only, not required)
 
@@ -331,7 +333,7 @@ cbind(ridge.coef, lasso.coef, ols.coef)
 ```{r}
 # Done for you
 
-pizza <- read.table("PizzaCal.csv", header=TRUE, row.names=1, sep=",")
+pizza <- read.table("Homework/data/PizzaCal.csv", header=TRUE, row.names=1, sep=",")
 
 # Note on row.names=1 - the first column has pizza ID's, which are not really data to analyze, just row labels. 
 ```
@@ -358,28 +360,41 @@ You can explore the correlation matrix of this data set on your own (NOT in this
 Load the **{pls}** library and fit a **PCR** model using the `pcr()` function to predict calories **cal** using all the remaining variables as predictors and the full data set. Use the **LOOCV** validation this time `scale=T, validation="LOO"`. Store the results in an object named **pcr.fit**. Then inspect the results with a `validationplot()` and displaying its `summary()`
 
 ```{r}
-
+library(pls)
+pcr.fit <- pls::pcr(cal ~ . , data = pizza, scale=T, validation="LOO") # fit pcr model
+pls::validationplot(pcr.fit) # view validation plot
+summary(pcr.fit) # view summary statistics
 ```
 
 5.3 Choose 3 to 5 candidate models with different number of components, based on the scree plot and the summary output above. Provide a brief rationale for you selection of candidate models. In your answer, please refer to the "elbows" in the scree plot, the cross-validation (CV values of the RMSEP), and the % explained variance of the various components.
 
+#### Analysis
 
+There appear to be elbows at 2, 4, 5, 10, and 12 components. The 12 component has the lowest CV value, but does not provide a significant enough increase in % variance explained in X or the response variable `cal`. In an effort to balance simplicity with predictive power, we should choose the 10 component model. The 2 and 4 component models have much higher RMSE values and lower explanatory power compared to the 10 component model. However, the high explanatory values could be indicative of overfitting.
 
 5.4 Coefficients
 
 Regardless of your answer above, let's explore a few models at each of the elbows, with 2, 4 and 10 components, and also for 5 components. Use the `pcr.fit$coefficients` attribute, but use `[,,c(2,4,5,10)]` as the index.
 
 ```{r}
-
+pcr.fit$coefficients[,,c(2,4,5,10)] # review coefficients
 ```
 
 5.5 Which of these models would you select? Provide a concise but clear rationale for your selection. Refer to the bias vs. variance tradeoff and also to the cross-validation RMSE in your answer.
+
+#### Analysis
+
+I would chose the 5 component model because it best balances simplicity with explanatory power. There is great explanatory power with a small RMSE (93.84% and 15.83, respectively). This high explanatory power may be because the model is overfit and there will be higher variance when new data is introduced to the model.
 
 
 
 5.6 Regardless of your answer above, to illustrate a simpler example, let's fit a model with **5 components** only, using the `ncomp=5` attribute in the `pcr()` function. Name this model **pcr.fit.5**. Then display its `summary()`, the component `$loadings` and the resulting coefficients for 5 components, using the `coef()` function with the `ncomp=5` attribute. 
 
 ```{r}
+pcr.fit.5 <- pls::pcr(cal ~ ., data = pizza, scale=T, validation="LOO", ncomp=5) # fit 5 coefficient model
+summary(pcr.fit.5) # view summary statistics
+pcr.fit.5$loadings # view loading components
+stats::coef(pcr.fit.5, ncomp=5) # view coefficients
 
 ```
 
