@@ -26,7 +26,7 @@ Dataset documentation at: https://rdrr.io/cran/aplore3/man/myopia.html
 Please note that **myopic** is coded as 1 (Yes), 0 (No) (not 1 and 2)
 
 ```{r}
-myopia <- utils::read.table("R_Exercises/data/myopia.csv", header=T, row.names=1, sep=",") 
+myopia <- utils::read.table("/Users/coniecakes/Library/CloudStorage/OneDrive-Personal/001. Documents - Main/023. Programming Tools/R Studio/PredictiveAnalytics/R_Exercises/data/myopia.csv", header=T, row.names=1, sep=",") 
 myopia[1:10, 1:6]
 ```
 
