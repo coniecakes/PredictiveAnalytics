@@ -1,0 +1,293 @@
+---
+title: "ITEC 621 - Homework 4 - Non-Linear and Classification Models"
+subtitle: "Kogod School of Business"
+author: "O'Malley, Conie"
+date: "`r Sys.Date()`"
+output: 
+  word_document:
+     toc: true
+     toc_depth: 2
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=T, warning=F, message=F)
+```
+
+## Submission: 
+
+Download the **HW4_YourLastName.Rmd** R Markdown file and save it with your own last name. Complete all your work in that template file, **Knit** the corresponding Word or PDF file. Your knitted file **MUST display your R commands**. In order to do this, please ensure that the `knittr::` global option command above has `echo=T`.
+
+Please prepare your R Markdown file with a **professional appearance**, as you would for top management or an important client. Please ensure that your text and R code are in the correct sections and use appropriate tags and formats. 
+
+
+## Knitting
+
+Improper or no knitting may have up to 10 pts. in deductions
+
+
+## 1. (15 pts.) Inspecting for Non-Linearity
+
+1.1 Load the **{ISLR}** and **{GGally}** libraries. Load and attach the **College{ISLR}** data set. Inspect the data with the **ggpairs(){GGally}** function, but do not run the ggpairs plots on all variables because it will take a **very long time**. Only include the following variables, as follows: `College[,c("Outstate","S.F.Ratio","Private","PhD","Grad.Rate")]`.
+
+```{r}
+library(ISLR)
+library(GGally)
+attach(ISLR::College)
+GGally::ggpairs(College[,c("Outstate","S.F.Ratio","Private","PhD","Grad.Rate")])
+```
+
+
+1.2 Briefly answer: if we are interested in predicting out of state tuition (**Outstate**), can you tell from the plots if any of the predictors have a curvilinear relationship with Outstate? Briefly explain.
+
+#### Analysis
+
+After looking at the correlation plots, the only variable that potentially has a curvilinear relationship with `Outstate` is `PhD`. Looking at the scatterplot relationship between the two variables, there appears to be a slightly curvilinear dispersion of the data points. However, this is not a strong indication of a curvilinear relationship and further analysis would be needed to confirm.
+
+
+
+1.3 Regardless of your answer, let's inspect **Outstate** closer by plotting it (Y axis) against **S.F.Ratio** (X axis) to examine if there is a linear or curvilinear association of these two variables. Do you now see a more curvilinear pattern in the relationship (no need to answer, just think)?
+
+```{r}
+plot(S.F.Ratio, Outstate)
+
+# Yes, this larger plot appears to show a non-linear relationship between these two variables.
+
+# Some students used ggplot(), which I thought was clever, there were several ways how the ggplot() was specified. This graph captures some of the best ideas I in student solutions:
+
+# Done for you
+
+library(ggplot2)
+ggplot(College, aes(y=Outstate, x=S.F.Ratio, color=Private)) + geom_point() + geom_smooth(color="red")
+```
+
+
+## 2. (15 pts.) Interaction Model
+
+2.1 Let's start with a **linear** model as a starting baseline. Fit a **linear model** to predict **Outstate** as a function of the other 4 predictors in your ggpairs plot, with the College data set. Store your model results in an object named **fit.linear**. Display a summary of your results.
+
+```{r}
+fit.linear <- stats::lm(Outstate ~ S.F.Ratio + Private + PhD + Grad.Rate, data = College)
+
+summary(fit.linear)
+```
+
+
+2.2 The model above has a good R-Squared and all predictors are significant, which is good. But suppose that your business knowledge about university enrollements makes you believe that **S.F.Ratio** and **Private** may have an interaction effect on **Outstate**. That is, your business knowledge tells you that higher student-to-faculty ratios lead to lower out of state tuition, but that this negative effect is stronger with private universites than public universities (i.e., you analytics goal is inference). To test this hypothesis, please add an **interaction** term for **S.F.Ratio** and **Private**. Store your model results in an object named **fit.inter**. Display a `summary()` of your results. Then do an `anova()` test to evaluate if **fit.inter** has more predictive power than **fit.linear**.  
+
+```{r}
+fit.inter <- stats::lm(Outstate ~ S.F.Ratio * Private + PhD + Grad.Rate, data = College)
+
+summary(fit.inter)
+
+stats::anova(fit.linear, fit.inter)
+```
+
+2.3 Briefly interpret the **ANOVA results** and also the **coefficient** for the interaction term. Is the interaction effect hypothesis retained or rejected? Why.
+
+#### Analysis
+
+The `fit.inter` model is an improvement on the original `fit.linear` model as it passes the $F-test: p-value = 0.001536 < 0.05$, indicating that the interaction term is statistically significant and should be retained in the model. The $SS_{residual}$ also decreases with the addition of the interaction term. The coefficient is negative, meaning the interaction effect is negative - which offsets `PrivateYes`, but reinforces `S.F.Ratio`, since their coefficients are positive and negative, respectively.
+
+   
+## 3. (15 pts.) Polynomial Model
+
+3.1 Using the `poly()` function, fit a polynomial of degree 4 for **S.F.Ratio**. In order to obtain **raw** (rather than orthogonal) coefficients, please include the `raw=T` attribute inside of the `poly()` function. Also, include linear predictors for the other 3 variables **Private**, **PhD** and **Grad.Rate**. Store your model results in an object named **fit.poly**. Display the summary results. Then conduct an **anova()** test to evaluate if **fit.poly** has more predictive power than **fit.linear**. 
+
+```{r}
+fit.poly <- stats::lm(Outstate ~ stats::poly(S.F.Ratio, degree = 4, raw = TRUE) + Private + PhD + Grad.Rate, data = College)
+
+summary(fit.poly)
+
+anova(fit.linear, fit.poly)
+```
+
+3.2 Briefly interpret your results (done for you in the R code). Comment on both, the `summary()` output of the model and the `anova()` test results.
+    
+#### Analysis
+
+The orthogonalized terms for `S.F.Ratio` all are statistically significant to the model - $p-value_{S.F.Ratio2, 3, 4} < 0.05$. There is also an improvement in $R^2_{Adj}$ from .6361 to .6481. The `fit.poly` model also passes the $F-test: p-value = 3.022e^{-8} < 0.05$, indicating that the orthoganalized terms are statistically significant and should be retained in the model.
+
+## 4. (15 pts.) Piecewise Linear Model
+
+4.1 Given that the above polynomial model has more predictive power than the linear model, it is worth exploring a **piecewise Linear Regression** model with **2 knots** at **S.F.Ratio=10** and **S.F.Ratio=20**, to predict **out of state tuition** as a function of **S.F.Ratio** (only) and save the model in an object named **fit.piece** (Note: your piecewise linear model will have 3 separate straight lines changing at each of these 2 points.) Display the summary results.
+
+```{r}
+# Note: the complete model should also include Private, PhD and Grad.Rate as predictors, but we exclude them below for the visualization.
+
+fit.piece=lm(Outstate~S.F.Ratio+
+               I((S.F.Ratio-10)*(S.F.Ratio>10))+
+               I((S.F.Ratio-20)*(S.F.Ratio>20)),
+             data=College)
+
+summary(fit.piece)
+```
+
+4.2 Briefly interpret your results
+
+#### Analysis
+
+The second line segment (`I((S.F.Ratio - 10) * (S.F.Ratio > 10))`) is not statistically significant to the model in this case, and the model does not have very good predictive power - $R^2_{Adj} = 0.3448$. 
+
+
+4.3 Now **Visualize**
+
+**Plotting Results.** Create a vector called **S.F.Ratio.knots** with 4 values: **0, 10, 20 and 40**. Note: we will use these knots only to draw regression lines (the model is already fitted) -- i.e., 2 of the knots correspond to the model knots; 1 is at 0 (the intercept) and the other one is at 40 (about the end of the data range). Then, use the **predict()** function to make predictions at these 4 knots.Store the predictions in an object named **preds**. Then do a **plot** of **S.F.Ratio** (X axis) vs. **Outstate** (Y axis). Use the **col="gray"** attribute to get somewhat faded dots. Then use the **"lines()"** function to draw the regression lines connecting the 4 knots above (use thicker blue), along with the respective 95% confidence interval lines (use thinner red) (Tip: use +/- 2*preds$se.fit).
+
+```{r}
+# Done for you, but I encourage you to try to do this yourself
+
+S.F.Ratio.knots=c(0,10,20,40)
+
+preds=predict(fit.piece,list(S.F.Ratio=S.F.Ratio.knots), se=T)
+plot(S.F.Ratio, Outstate, col="gray")
+
+lines(S.F.Ratio.knots,preds$fit,col="blue",lwd=2)
+lines(S.F.Ratio.knots,preds$fit-2*preds$se.fit,col="red",lwd=1)
+lines(S.F.Ratio.knots,preds$fit+2*preds$se.fit,col="red",lwd=1)
+```
+
+## 5. (20 pts.) Binomial Classification Model
+
+5.1 Data Preparation
+
+We will use the dataset **Auto{ISLR}** to develop a binomial classification model to predict the likelihood of automobiles having high gas mileage. So, first load the **{ISLR}** library. Since we don't have a dummy variable to classify high vs. low gas mileage vehicles, let's use the quantitative value of miles per gallon **mpg** to create a binary variable called **mpg.hi** if a vehicle has higher **mpg** than the median. Let's first calculate the **median mpg** value using the `median()` function and store the results in an object named **med.mpg**. Then create a column in the **Auto** dataset named **mpg.hi** with a binary value of 1 if `mpg>med.mpg` and 0 otherwise, using the `ifelse()` function. 
+
+For a quick visual inspection, display the **med.mpg** value and then a 2-column data frame using `cbind()` the first 20 values for **mpg** and **mpg.hi**. Please label the columns as shown below. Don't answer this,but quickly verify that your **med.hi** variable was created correctly.
+
+```{r}
+attach(ISLR::Auto)
+med.mpg <- stats::median(Auto$mpg)
+Auto$mpg.hi <- ifelse(mpg > med.mpg, 1, 0)
+cbind(med.mpg, mpg.hi = Auto$mpg.hi[1:20], mpg = Auto$mpg[1:20])
+```
+
+5.2 Train and Test Sub-Samples
+
+Set the **seed** to 1 to get replicable results. Then draw a random sample of index numbers into a vector called **train** containing **80%** of the row numbers in **Auto**. This vector will contain a random sample of 80% of the `nrow(Auto)` row numbers, which you will use to index the training sub-sample. **Note:** if your resulst deviate **slightly** from mine it is probably due to random sampling and it is not a problem. Display your resulting **train** index vector so that you can compare your results with mine.
+
+```{r}
+set.seed(1)
+train <- sample(nrow(Auto), size = .8*nrow(Auto))
+print(train)
+```
+
+5.3 Logistic Model
+
+Fit a **Logistic** model on the **train** sub-sample, to predict the likelihood that a vehicle has **high gas mileage** (use **mpg.hi** as the response variable), using **cylinders, displacement, horsepower, weight, year** and **origin** as predictors. Store the results in an object named **fit.logit**. Display the summary results. 
+
+```{r}
+fit.logit <- stats::glm(mpg.hi ~ cylinders + displacement + horsepower + weight + year + origin, data = Auto[train, ], family = "binomial")
+
+summary(fit.logit)
+
+```
+
+5.6 Briefly interpret the effect and significance of all coefficients with p<0.05. Use the units of the respective variables in your interpretation narrative (enter `?Auto` from the console)
+
+#### Analysis
+
+- `horsepower`: $coeff = -0.038895$ - for every one unit increase in `horsepower`, there is a 0.038895 decrease in the log odds of mpg.hi being greater than the median (`med.mpg`)
+
+- `weight`: $coeff = -0.004703$ - for every one unit increase in `weight`, there is a 0.004703 decrease in the log odds of mpg.hi being greater than the median (`med.mpg`)
+
+- `year`: $coeff = 0.424170$ - for every one unit increase in `year` (meaning the newer the vehicle is), there is a 0.424170 increase in the log odds of mpg.hi being greater than the median (`med.mpg`)
+
+
+5.7 As you know, the coefficients of this logit model represent the variable effects on the **log-odds** of having a high mileage car, so the interpretation of the log-odds is hard to interpret and explain to a manager. To make this easier to interpret, create 2 vectors: **log.odds** containing the coefficients from **fit.logit** and **odds** containing the equivalent odds of these coefficients. Before you print the results, enter the function `options(scipen=4)` to minimize the display of scientific notation. Then use the **cbind()** function to diaplay both vectors together.
+
+```{r}
+options(scipen=4)
+log.odds <- stats::coef(fit.logit)
+odds <- exp(log.odds)
+cbind(log.odds, odds)
+```
+
+
+## 6. (20 Pts.) Confusion Matrix and ROC Curve
+
+6.1 Use the **predict()** function with the attribute **type="response"** (which gives probabilities) to make predictions on the test data (tip: [-train,]) and save the results in an object named **pred.probs**. Then create a vector named **pred.hi.mpg** containing a 1 if the probability of the vehicle being high mileage is greater than 50% and 0 otherwise (tip: use this function **ifelse(pred.probs>0.5, 1, 0)**). Then create and display a **confusion matrix** with these test predictions using the **table()** function (tip: use `table(pred.hi.mpg, Auto$mpg.hi[-train])`. Name the confusion matrix **conf.mat**.
+
+```{r}
+pred.probs <- stats::predict(fit.logit, Auto[-train,], type = "response")
+
+pred.hi.mpg <- ifelse(pred.probs > 0.5, 1, 0)
+
+conf.mat <- table(pred.hi.mpg, Auto$mpg.hi[-train])
+
+conf.mat
+```
+
+6.2 Cross-Validation Fit Statistics
+
+Now use the data in the confusion matrix to compute the accuracy rate, error rate, sensitivity, specificity and false positives rate. Follow the formulas in the classification models script.
+
+**Technical tip:** In the classification models script I provided for the course, I have formulas to compute sensitivity, specificity, etc. If you name the confusion matrix **conf.mat()** you can simply copy paste the code from the script (e.g., TruN, TruP, etc.) and it will work here. Once you are done with the calculations, use the `c()` function to display your results in a single row, with each value properly labeled as shown below.
+
+```{r}
+TruN <- conf.mat[1,1] # true negatives
+TruP <- conf.mat[2,2] # true positives
+FalP <- conf.mat[2,1] # false positives
+FalN <- conf.mat[1,2] # false negatives
+TotN <- conf.mat[1,1] + conf.mat[2,1] # total negatives
+TotP <- conf.mat[1,2] + conf.mat[2,2] # total positives
+Tot <- TotN+TotP # matrix total
+
+Accuracy <- (TruN+TruP)/Tot
+Error <- (FalN+FalP)/Tot
+Sensitivity <- TruP/TotP # correct positives
+Specificity <- TruN/TotN # correct negatives
+FalPos <- 1 - Specificity
+
+cbind(Accuracy, Error, Sensitivity, Specificity, FalPos)
+```
+
+6.3 Interprtation
+
+Provide a brief interpretation of each of the results displayed.
+
+#### Analysis
+
+- Accuracy Rate (0.9240): our model correctly predicted 92.4% of all predicted values (true positives and true negatives)
+- Error Rate (0.0759): our model incorrectly predicted 7.59% of all predicted values (false positives and false negatives)
+- Sensitivity (0.9459): our model identified 94.59% of the total actual positives
+- Specificity (0.9047): our model identified 90.47% of the total actual negatives
+- False Positive Rate (0.0952): our model incorrectly predicted positive 9.52% of the time
+
+6.4 Classification Threshold
+
+In the formulas above, we used a classification threshold of pred.probs>0.5 to predict a vehicle as high mileage (i.e., 1). But as you know, we can change this threshold and change the fit statistics to suit our needs. When you change this classification threshold, the sensitivy and specificity will also change but in oposite directions. Briefly describe how the sensitivity and specificity will change if we change the classification threshold to 0.3 and 0.7.
+
+
+
+6.5 ROC and AUC
+
+To better examine how the model performs as we change the classification threshold, let's plot the ROC Curve and compute the corresponding area under the curve (AUC). First, load the **{ROCR}** library, which contains the necessary functions for ROC computation. You already predicted high mileage classifications with the test subsample above and stored it in **pred.probs**. But this time we need to use the **ROCR** `prediction()` function to create an ROC prediction object. Use `pred.probs` (i.e., predicted classifications in the test subsample) and `Auto$mpg.hi[-train]` (actual classifications in the test subsample) as arguments in the `prediction()` function and store the results in an object named **pred**. 
+
+Then feed this **pred** object into the `perf()` function, but also include the `"tpr"` and `"fpr"` arguments to obtain true positive and false positive rates, respectively (which is what goes on the ROC Curve). Then plot the **perf** object using `colorize=T` to get a colorful plot. 
+
+Then feed the **pred** object into the `perf()` function again, but this time use `"auc"` as the argument, to get the area under the ROC Curve, AUC. Then display the name and value of the AUC with `c(auc@y.name[[1]], auc@y.values[[1]])`
+
+```{r}
+library(ROCR)
+pred <- ROCR::prediction(pred.probs, Auto$mpg.hi[-train])
+
+perf <- ROCR::performance(pred, "tpr", "fpr")
+plot(perf, colorize=T)
+
+auc <- ROCR::performance(pred, "auc")
+c(auc@y.name[[1]], auc@y.values[[1]])
+
+```
+
+6.6 Interpretation
+
+Provide a brief interpretation of the ROC Curve and AUC. Is this a good model? Why or why not?
+
+#### Analysis
+
+- ROC plot: the elbow is very high towards the upper left corner of the plot, meaning our model is doing a very good job of capturing true positives in relationship to the false positives.
+
+- $AUC = 0.9903$: this confirms the findings of the ROC plot - the true positive : false positive rate is 99.03% meaning we are highly accurate at predicting true positives
+
+
+
